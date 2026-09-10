@@ -8,7 +8,7 @@ Accepted.
 
 The marketplace vendors only owned or redistribution-compatible source. OpenAI-managed plugins and
 other external integrations are recorded as profile references and installed from their original
-marketplaces. Credentials, generated caches, runtime paths, and local Codex configuration are never
+marketplaces. Credentials, generated caches, runtime paths, and local agent configuration are never
 copied.
 
 ## Consequences

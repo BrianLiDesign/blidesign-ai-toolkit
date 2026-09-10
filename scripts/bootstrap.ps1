@@ -144,5 +144,5 @@ if ($DryRun) {
         Write-Output 'Optional external plugins may require per-machine authentication on first use.'
     }
     Write-Output "Health check passed: $($configuration.plugins.Count) marketplace plugins installed."
-    Write-Output "Profile '$Profile' installed. Start a new Codex task to load new skills and MCP tools."
+    Write-Output "Profile '$Profile' installed for Codex. Start a new Codex task to load new skills and MCP tools."
 }

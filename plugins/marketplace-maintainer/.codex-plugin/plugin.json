@@ -1,7 +1,7 @@
 {
   "name": "marketplace-maintainer",
   "version": "0.1.0",
-  "description": "Audit, update, and verify Brian's portable Codex marketplace.",
+  "description": "Audit, update, and verify this portable AI toolkit marketplace.",
   "author": {
     "name": "Brian Li"
   },

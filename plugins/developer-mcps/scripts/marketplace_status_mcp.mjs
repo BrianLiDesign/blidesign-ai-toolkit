@@ -14,13 +14,16 @@ function readJson(relativePath) {
 
 function marketplaceStatus() {
   const catalog = readJson("assets/catalog.json");
-  const manifestExists = existsSync(join(pluginRoot, ".codex-plugin", "plugin.json"));
+  const codexManifestPresent = existsSync(
+    join(pluginRoot, ".codex-plugin", "plugin.json"),
+  );
   const skillExists = existsSync(
     join(pluginRoot, "skills", "portable-mcp-status", "SKILL.md"),
   );
 
   return {
-    healthy: manifestExists && skillExists,
+    healthy: skillExists && Array.isArray(catalog.plugins) && catalog.plugins.length > 0,
+    codexManifestPresent,
     marketplace: catalog.marketplace,
     pluginCount: catalog.plugins.length,
     plugins: catalog.plugins,

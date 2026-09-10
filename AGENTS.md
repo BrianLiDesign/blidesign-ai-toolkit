@@ -1,11 +1,12 @@
 # Repository guidance
 
-Keep this repository portable across Windows, macOS, and Linux. Never commit credentials, Codex
+Keep this repository portable across Windows, macOS, and Linux. Never commit credentials, agent
 caches, runtime folders, local configuration, or absolute user paths. Preserve licenses and full
 commit provenance for all vendored sources.
 
 Run `python scripts/verify.py` and `python -m unittest discover -s tests -v` after changes. Test both
-bootstrap scripts in dry-run mode when their shells are available.
+bootstrap scripts in dry-run mode when their shells are available, and dry-run
+`python scripts/sync_skills.py --profile development --target <tmp> --dry-run`.
 
 ## Agent skills
 

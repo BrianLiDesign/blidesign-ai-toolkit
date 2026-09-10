@@ -16,7 +16,7 @@ class MarketplaceContractTests(unittest.TestCase):
         marketplace_path = ROOT / ".agents" / "plugins" / "marketplace.json"
         marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
 
-        self.assertEqual(marketplace["name"], "brian-ai-tools")
+        self.assertEqual(marketplace["name"], "blidesign-ai-toolkit")
         entries = marketplace["plugins"]
         self.assertEqual(
             [entry["name"] for entry in entries],
@@ -67,7 +67,7 @@ class MarketplaceContractTests(unittest.TestCase):
             profile = json.loads(
                 (ROOT / "profiles" / f"{profile_name}.json").read_text("utf-8")
             )
-            self.assertEqual(profile["marketplace"], "brian-ai-tools")
+            self.assertEqual(profile["marketplace"], "blidesign-ai-toolkit")
             self.assertEqual(profile["plugins"], expected_plugins)
             self.assertTrue(set(profile["plugins"]).issubset(known))
             self.assertIsInstance(profile["externalPlugins"], list)
@@ -84,6 +84,8 @@ class MarketplaceContractTests(unittest.TestCase):
         self.assertIn("Marketplace verification passed", completed.stdout)
 
     def test_marketplace_status_mcp_reports_repository_health(self) -> None:
+        if shutil.which("node") is None:
+            self.skipTest("Node.js is not installed")
         requests = "\n".join(
             [
                 json.dumps(
@@ -126,10 +128,80 @@ class MarketplaceContractTests(unittest.TestCase):
             responses[1]["result"]["tools"][0]["name"], "marketplace_status"
         )
         status = responses[2]["result"]["structuredContent"]
-        self.assertEqual(status["marketplace"], "brian-ai-tools")
+        self.assertTrue(status["healthy"])
+        self.assertTrue(status["codexManifestPresent"])
+        self.assertEqual(status["marketplace"], "blidesign-ai-toolkit")
         self.assertEqual(status["pluginCount"], 3)
         self.assertEqual(status["profileCount"], 3)
         self.assertEqual(status["vendoredSkillCount"], 37)
+
+    def test_sync_skills_dry_run_lists_profile_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "skills"
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "sync_skills.py"),
+                    "--profile",
+                    "minimal",
+                    "--target",
+                    str(target),
+                    "--dry-run",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            self.assertIn("marketplace-maintainer", completed.stdout)
+            self.assertIn("[dry-run] copy", completed.stdout)
+            self.assertIn("Would sync 1 skill(s)", completed.stdout)
+            self.assertFalse(target.exists())
+
+    def test_sync_skills_copies_selected_profile_into_target(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "skills"
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "sync_skills.py"),
+                    "--profile",
+                    "minimal",
+                    "--target",
+                    str(target),
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            skill_path = target / "marketplace-maintainer" / "SKILL.md"
+            self.assertTrue(skill_path.is_file())
+            self.assertFalse((target / "tdd").exists())
+            self.assertIn("Synced 1 skill(s)", completed.stdout)
+
+            completed_again = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "sync_skills.py"),
+                    "--profile",
+                    "minimal",
+                    "--target",
+                    str(target),
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(
+                completed_again.returncode,
+                0,
+                completed_again.stdout + completed_again.stderr,
+            )
+            self.assertTrue(skill_path.is_file())
 
     def test_powershell_bootstrap_dry_run_is_profile_driven(self) -> None:
         shell = shutil.which("pwsh") or shutil.which("powershell")
@@ -151,8 +223,8 @@ class MarketplaceContractTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn("marketplace-maintainer@brian-ai-tools", completed.stdout)
-        self.assertNotIn("engineering-skills@brian-ai-tools", completed.stdout)
+        self.assertIn("marketplace-maintainer@blidesign-ai-toolkit", completed.stdout)
+        self.assertNotIn("engineering-skills@blidesign-ai-toolkit", completed.stdout)
         self.assertIn("Dry run complete", completed.stdout)
 
     def test_bash_bootstrap_dry_run_is_profile_driven(self) -> None:
@@ -182,7 +254,7 @@ class MarketplaceContractTests(unittest.TestCase):
             "marketplace-maintainer",
             "developer-mcps",
         ):
-            self.assertIn(f"{plugin}@brian-ai-tools", completed.stdout)
+            self.assertIn(f"{plugin}@blidesign-ai-toolkit", completed.stdout)
         self.assertIn("Dry run complete", completed.stdout)
 
     def test_inventory_export_omits_mcp_environment_and_machine_paths(self) -> None:
@@ -222,6 +294,8 @@ class MarketplaceContractTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform == "win32", "PowerShell reconciliation test")
     def test_powershell_bootstrap_is_idempotent_with_a_clean_codex_state(self) -> None:
+        if shutil.which("node") is None:
+            self.skipTest("Node.js is not installed")
         shell = shutil.which("pwsh") or shutil.which("powershell")
         self.assertIsNotNone(shell)
         with tempfile.TemporaryDirectory() as directory:
@@ -273,9 +347,9 @@ class MarketplaceContractTests(unittest.TestCase):
             self.assertEqual(
                 second_state["plugins"],
                 [
-                    "developer-mcps@brian-ai-tools",
-                    "engineering-skills@brian-ai-tools",
-                    "marketplace-maintainer@brian-ai-tools",
+                    "developer-mcps@blidesign-ai-toolkit",
+                    "engineering-skills@blidesign-ai-toolkit",
+                    "marketplace-maintainer@blidesign-ai-toolkit",
                 ],
             )
 

@@ -29,7 +29,7 @@ def main() -> int:
     if args[:4] == ["plugin", "marketplace", "list", "--json"]:
         marketplaces = []
         if state["marketplace"]:
-            marketplaces.append({"name": "brian-ai-tools", "root": "/fake/marketplace"})
+            marketplaces.append({"name": "blidesign-ai-toolkit", "root": "/fake/marketplace"})
         print(json.dumps({"marketplaces": marketplaces}))
         return 0
 
@@ -44,7 +44,7 @@ def main() -> int:
         print(
             json.dumps(
                 {
-                    "marketplaceName": "brian-ai-tools",
+                    "marketplaceName": "blidesign-ai-toolkit",
                     "installedRoot": "/fake/marketplace",
                     "alreadyAdded": already_added,
                 }
@@ -92,7 +92,7 @@ def main() -> int:
         return 0
 
     if args[:3] == ["mcp", "list", "--json"]:
-        enabled = "developer-mcps@brian-ai-tools" in state["plugins"]
+        enabled = "developer-mcps@blidesign-ai-toolkit" in state["plugins"]
         print(
             json.dumps(
                 [

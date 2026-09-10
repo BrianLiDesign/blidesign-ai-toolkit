@@ -1,7 +1,7 @@
 {
   "name": "engineering-skills",
   "version": "0.1.0",
-  "description": "Pinned, portable engineering workflows for Codex.",
+  "description": "Pinned, portable engineering workflows for AI coding agents.",
   "author": {
     "name": "Brian Li"
   },
@@ -11,7 +11,7 @@
   "interface": {
     "displayName": "Engineering Skills",
     "shortDescription": "Plan, build, debug, and review software.",
-    "longDescription": "A pinned collection of Matt Pocock's composable engineering and productivity skills, packaged for Codex.",
+    "longDescription": "A pinned collection of Matt Pocock's composable engineering and productivity skills, packaged as portable Agent Skills.",
     "developerName": "Brian Li",
     "category": "Developer Tools",
     "capabilities": ["Plan", "Write"],

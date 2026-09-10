@@ -7,4 +7,4 @@
 - License: MIT
 - License text: `LICENSES/mattpocock-skills-MIT.txt`
 
-The skill directories are flattened into this plugin so Codex can discover each `SKILL.md` directly.
+The skill directories are flattened into this plugin so each host can discover every `SKILL.md` directly.

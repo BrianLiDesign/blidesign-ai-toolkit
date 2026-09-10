@@ -1,8 +1,8 @@
-# Brian's AI Tools
+# BliDesign AI Toolkit
 
-A portable Codex plugin marketplace for installing a consistent set of skills and MCP utilities on
-multiple machines. The repository packages source that can be redistributed and references managed
-plugins by their original marketplace identifiers.
+A portable package of Agent Skills and MCP utilities you can install onto Codex, Cursor, Claude Code,
+or any other host that discovers `SKILL.md` folders. The repository vendors redistributable source
+and references managed plugins by their original marketplace identifiers where a host supports that.
 
 ## Included plugins
 
@@ -10,11 +10,37 @@ plugins by their original marketplace identifiers.
 - **marketplace-maintainer**: a skill for auditing provenance, manifests, profiles, and releases.
 - **developer-mcps**: a dependency-free local MCP server that reports marketplace health.
 
-The `development` and `full` profiles also list useful OpenAI-managed plugins as optional external
-dependencies. They remain subject to account availability and authenticate independently on each
-machine.
+Profiles select which plugins to install. The `development` and `full` profiles also list useful
+OpenAI-managed plugins as optional **Codex** external dependencies. They remain subject to account
+availability and authenticate independently on each machine.
 
-## Install from this checkout
+## Install skills on any agent
+
+Copy the skills from a profile into a directory your agent already loads:
+
+```powershell
+py scripts/sync_skills.py --profile development --target $HOME\.cursor\skills
+```
+
+```bash
+python scripts/sync_skills.py --profile development --target ~/.claude/skills
+```
+
+Common destinations:
+
+| Host | Personal | Project |
+| --- | --- | --- |
+| Cursor | `~/.cursor/skills` | `.cursor/skills` |
+| Claude Code | `~/.claude/skills` | `.claude/skills` |
+| Other Agent Skills hosts | whatever path that host documents | project-local skills dir |
+
+Use `--dry-run` to preview copies. Restart or reload the agent afterward so new skills are picked up.
+
+To expose the local status MCP outside Codex, point your host's MCP config at
+`plugins/developer-mcps/.mcp.json` (or the `node …/marketplace_status_mcp.mjs` command it declares),
+using paths appropriate for that machine. Do not commit absolute paths.
+
+## Install with Codex
 
 Windows PowerShell:
 
@@ -31,17 +57,17 @@ bash scripts/bootstrap.sh --profile development
 This registers the checkout as a user-level Codex marketplace and installs the selected plugins.
 Start a new Codex task afterward so the new skills and MCP tools are loaded.
 
-## Install after hosting in Git
+### Install after hosting in Git
 
 Push the repository to a Git host, then supply its source in a form accepted by Codex—such as
-`OWNER/ai-toolkit-marketplace`, an HTTPS Git URL, or an SSH Git URL:
+`OWNER/blidesign-ai-toolkit`, an HTTPS Git URL, or an SSH Git URL:
 
 ```powershell
-.\scripts\bootstrap.ps1 -Profile full -Source OWNER/ai-toolkit-marketplace -Ref stable
+.\scripts\bootstrap.ps1 -Profile full -Source OWNER/blidesign-ai-toolkit -Ref stable
 ```
 
 ```bash
-bash scripts/bootstrap.sh --profile full --source OWNER/ai-toolkit-marketplace --ref stable
+bash scripts/bootstrap.sh --profile full --source OWNER/blidesign-ai-toolkit --ref stable
 ```
 
 Use a `stable` branch for machines that should receive reviewed updates. Use `main` only for machines
@@ -51,23 +77,24 @@ Codex keeps an existing marketplace registration. If a machine must switch to a 
 source or ref, explicitly reconcile it:
 
 ```powershell
-.\scripts\bootstrap.ps1 -Profile full -Source OWNER/ai-toolkit-marketplace -Ref main -ReconfigureMarketplace
+.\scripts\bootstrap.ps1 -Profile full -Source OWNER/blidesign-ai-toolkit -Ref main -ReconfigureMarketplace
 ```
 
 ```bash
-bash scripts/bootstrap.sh --profile full --source OWNER/ai-toolkit-marketplace --ref main --reconfigure-marketplace
+bash scripts/bootstrap.sh --profile full --source OWNER/blidesign-ai-toolkit --ref main --reconfigure-marketplace
 ```
 
 ## Profiles
 
-| Profile | Marketplace plugins | Optional external plugins |
+| Profile | Marketplace plugins | Optional external plugins (Codex) |
 | --- | --- | --- |
 | `minimal` | Maintainer | None |
 | `development` | Engineering, maintainer, MCP status | GitHub, Browser Act |
 | `full` | Engineering, maintainer, MCP status | GitHub, Notion, Browser Act, Data Analytics, Product Design |
 
-Pass `-SkipExternal` or `--skip-external` to install only plugins owned by this marketplace. Use
-`-DryRun` or `--dry-run` to preview every Codex command.
+Pass `-SkipExternal` or `--skip-external` on Codex bootstrap to install only plugins owned by this
+marketplace. Use `-DryRun` or `--dry-run` to preview every Codex command. The same profile names feed
+`scripts/sync_skills.py`.
 
 ## Verify
 
@@ -90,7 +117,7 @@ to each account; do not commit an expanded user-specific path.
 
 ## Inventory
 
-Export the current machine's portable inventory fields:
+Export the current machine's portable Codex inventory fields:
 
 ```powershell
 py scripts/export_inventory.py
@@ -115,7 +142,7 @@ py scripts/verify.py
 py -m unittest discover -s tests -v
 ```
 
-The updater also refreshes the packaged MCP catalog and adds a Codex cachebuster to affected plugin
+The updater also refreshes the packaged MCP catalog and adds a cachebuster to affected Codex plugin
 versions. Commit those manifests, the updated skills, license file, and
 `upstream/sources.lock.json` together.
 
@@ -127,18 +154,21 @@ py scripts/sync_catalog.py
 
 ## Update installed machines
 
-Refresh a Git-hosted marketplace and rerun the profile bootstrap:
+Refresh a Git-hosted Codex marketplace and rerun the profile bootstrap:
 
 ```powershell
-codex plugin marketplace upgrade brian-ai-tools
-.\scripts\bootstrap.ps1 -Profile development -Source OWNER/ai-toolkit-marketplace
+codex plugin marketplace upgrade blidesign-ai-toolkit
+.\scripts\bootstrap.ps1 -Profile development -Source OWNER/blidesign-ai-toolkit
 ```
 
 Local-path marketplaces read the checkout directly and do not need a marketplace upgrade.
 
+For Cursor, Claude Code, or other hosts, rerun `scripts/sync_skills.py` against the same target
+directory after pulling updates.
+
 ## Security and licensing
 
-- Never commit tokens, cookies, `.env` files, Codex configuration, caches, or runtime folders.
+- Never commit tokens, cookies, `.env` files, agent configuration, caches, or runtime folders.
 - MCP definitions use relative plugin paths and require no credentials.
 - External plugins are installed from their original marketplace rather than copied.
 - Vendored source must retain its license and full commit provenance.

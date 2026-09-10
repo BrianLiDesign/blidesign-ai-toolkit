@@ -1,7 +1,7 @@
 {
-  "name": "brian-ai-tools",
+  "name": "blidesign-ai-toolkit",
   "interface": {
-    "displayName": "Brian's AI Tools"
+    "displayName": "BliDesign AI Toolkit"
   },
   "plugins": [
     {

@@ -166,5 +166,5 @@ else
     echo "Optional external plugins may require per-machine authentication on first use."
   fi
   echo "Health check passed: ${#plugins[@]} marketplace plugins installed."
-  echo "Profile '$profile' installed. Start a new Codex task to load new skills and MCP tools."
+  echo "Profile '$profile' installed for Codex. Start a new Codex task to load new skills and MCP tools."
 fi
