@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "marketplaceStatus": {
+      "title": "Portable Marketplace Status",
+      "description": "Reports plugin, profile, provenance, and vendored-skill counts without reading credentials.",
+      "cwd": ".",
+      "command": "node",
+      "args": [
+        "./scripts/marketplace_status_mcp.mjs"
+      ]
+    }
+  }
+}

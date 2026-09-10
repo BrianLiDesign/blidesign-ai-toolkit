@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "sources": {
+    "mattpocock-skills": {
+      "repository": "https://github.com/mattpocock/skills.git",
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "license": "MIT",
+      "destination": "plugins/engineering-skills/skills",
+      "updateStrategy": "flatten-skill-directories",
+      "transformations": [
+        "translate disable-model-invocation true to Codex explicit-only agents/openai.yaml policy"
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "marketplace": "brian-ai-tools",
+  "plugins": [
+    "engineering-skills",
+    "marketplace-maintainer",
+    "developer-mcps"
+  ],
+  "externalPlugins": [
+    {
+      "id": "github@openai-curated-remote",
+      "optional": true
+    },
+    {
+      "id": "browser-act@openai-curated-remote",
+      "optional": true
+    }
+  ]
+}

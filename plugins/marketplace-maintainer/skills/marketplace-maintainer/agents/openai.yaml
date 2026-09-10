@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marketplace Maintainer"
+  short_description: "Audit and update the portable Codex marketplace"

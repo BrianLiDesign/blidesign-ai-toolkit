@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+inventory.local.json
+.skills-stage-*/
+.skills-backup-*/

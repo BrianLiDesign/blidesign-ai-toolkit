@@ -1,0 +1,24 @@
+{
+  "name": "marketplace-maintainer",
+  "version": "0.1.0",
+  "description": "Audit, update, and verify Brian's portable Codex marketplace.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": ["marketplace", "plugins", "maintenance"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Marketplace Maintainer",
+    "shortDescription": "Audit and update the portable tool catalog.",
+    "longDescription": "Maintains provenance, validates plugin manifests, checks profiles, and updates pinned upstream skills.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": ["Inspect", "Write"],
+    "defaultPrompt": [
+      "Verify this marketplace and summarize any problems.",
+      "Check whether pinned upstream skills have updates.",
+      "Prepare this marketplace for a stable release."
+    ]
+  }
+}

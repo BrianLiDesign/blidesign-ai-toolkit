@@ -1,0 +1,3 @@
+interface:
+  display_name: "Portable MCP Status"
+  short_description: "Inspect portable marketplace inventory and health"

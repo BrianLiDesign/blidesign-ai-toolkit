@@ -1,0 +1,24 @@
+{
+  "name": "engineering-skills",
+  "version": "0.1.0",
+  "description": "Pinned, portable engineering workflows for Codex.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": ["engineering", "skills", "workflow", "tdd"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Engineering Skills",
+    "shortDescription": "Plan, build, debug, and review software.",
+    "longDescription": "A pinned collection of Matt Pocock's composable engineering and productivity skills, packaged for Codex.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": ["Plan", "Write"],
+    "defaultPrompt": [
+      "Ask Matt which engineering workflow fits this task.",
+      "Turn this idea into a buildable specification.",
+      "Implement this change test-first and review it."
+    ]
+  }
+}

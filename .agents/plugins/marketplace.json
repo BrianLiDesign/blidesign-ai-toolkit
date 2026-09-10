@@ -1,0 +1,44 @@
+{
+  "name": "brian-ai-tools",
+  "interface": {
+    "displayName": "Brian's AI Tools"
+  },
+  "plugins": [
+    {
+      "name": "engineering-skills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/engineering-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "marketplace-maintainer",
+      "source": {
+        "source": "local",
+        "path": "./plugins/marketplace-maintainer"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "developer-mcps",
+      "source": {
+        "source": "local",
+        "path": "./plugins/developer-mcps"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "marketplace": "brian-ai-tools",
+  "plugins": [
+    "marketplace-maintainer"
+  ],
+  "externalPlugins": []
+}

@@ -1,0 +1,36 @@
+name: Verify marketplace
+
+on:
+  pull_request:
+  push:
+    branches: [main, stable]
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run repository verifier
+        run: python scripts/verify.py
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: Check Bash syntax
+        if: runner.os != 'Windows'
+        run: bash -n scripts/bootstrap.sh
+      - name: Dry-run Bash development profile
+        if: runner.os != 'Windows'
+        run: bash scripts/bootstrap.sh --profile development --dry-run --skip-external
+      - name: Dry-run PowerShell development profile
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/bootstrap.ps1 -Profile development -DryRun -SkipExternal
