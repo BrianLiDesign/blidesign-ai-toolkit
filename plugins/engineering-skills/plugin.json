@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "engineering-skills",
+  "version": "0.2.0",
+  "description": "Pinned, portable engineering workflows for AI coding agents.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": ["engineering", "skills", "workflow", "tdd"]
+}

@@ -6,9 +6,15 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from provenance import digest_directory
+from update_upstreams import flatten_skills, set_plugin_version, update_source_lock
+from verify import VerificationError, validate_plugin, validate_source_provenance
 
 
 class MarketplaceContractTests(unittest.TestCase):
@@ -43,6 +49,239 @@ class MarketplaceContractTests(unittest.TestCase):
         self.assertEqual(source["repository"], "https://github.com/mattpocock/skills.git")
         self.assertRegex(source["commit"], r"^[0-9a-f]{40}$")
         self.assertEqual(source["license"], "MIT")
+        self.assertTrue((ROOT / source["licensePath"]).is_file())
+        self.assertEqual(
+            source["contentSha256"], digest_directory(ROOT / source["destination"])
+        )
+
+    def test_portable_manifests_are_canonical(self) -> None:
+        for plugin_name in (
+            "engineering-skills",
+            "marketplace-maintainer",
+            "developer-mcps",
+        ):
+            with self.subTest(plugin=plugin_name):
+                plugin = ROOT / "plugins" / plugin_name
+                portable = json.loads((plugin / "plugin.json").read_text("utf-8"))
+                compatibility = json.loads(
+                    (plugin / ".codex-plugin" / "plugin.json").read_text("utf-8")
+                )
+                self.assertEqual(
+                    portable["$schema"],
+                    "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+                )
+                for field in ("name", "version", "description", "license"):
+                    self.assertEqual(portable[field], compatibility[field])
+                validate_plugin(plugin, plugin_name)
+
+    def test_manifest_validation_rejects_schema_identity_and_path_drift(self) -> None:
+        cases = {
+            "unsupported schema": (
+                "portable",
+                lambda manifest: manifest.update(
+                    {"$schema": "https://example.com/plugin.schema.json"}
+                ),
+            ),
+            "differs from portable identity": (
+                "compatibility",
+                lambda manifest: manifest.update({"description": "Drifted description"}),
+            ),
+            "must be a ./-relative path": (
+                "compatibility",
+                lambda manifest: manifest.update({"skills": "C:/private/skills"}),
+            ),
+            "version must be strict semver": (
+                "portable",
+                lambda manifest: manifest.update({"version": "version-two"}),
+            ),
+            "folder and manifest names must match": (
+                "portable",
+                lambda manifest: manifest.update({"name": "renamed-plugin"}),
+            ),
+        }
+        for expected_error, (target_kind, mutate) in cases.items():
+            with self.subTest(expected_error=expected_error):
+                with tempfile.TemporaryDirectory() as directory:
+                    plugin = Path(directory) / "marketplace-maintainer"
+                    shutil.copytree(ROOT / "plugins" / "marketplace-maintainer", plugin)
+                    target = plugin / "plugin.json"
+                    if target_kind == "compatibility":
+                        target = plugin / ".codex-plugin" / "plugin.json"
+                    manifest = json.loads(target.read_text("utf-8"))
+                    mutate(manifest)
+                    target.write_text(json.dumps(manifest), encoding="utf-8")
+                    with self.assertRaisesRegex(VerificationError, expected_error):
+                        validate_plugin(plugin, "marketplace-maintainer")
+
+    def test_portable_mcp_matches_the_compatibility_configuration(self) -> None:
+        plugin = ROOT / "plugins" / "developer-mcps"
+        portable = json.loads((plugin / "mcp.json").read_text("utf-8"))
+        server = portable["mcpServers"]["marketplaceStatus"]
+        self.assertEqual(
+            portable["$schema"],
+            "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        )
+        self.assertEqual(server["type"], "stdio")
+        self.assertEqual(server["cwd"], "./")
+        validate_plugin(plugin, "developer-mcps")
+
+        with tempfile.TemporaryDirectory() as directory:
+            copied = Path(directory) / "developer-mcps"
+            shutil.copytree(plugin, copied)
+            (copied / "mcp.json").unlink()
+            with self.assertRaisesRegex(
+                VerificationError, "portable plugin with MCP requires root mcp.json"
+            ):
+                validate_plugin(copied, "developer-mcps")
+
+    def test_upstream_version_updates_keep_manifests_in_sync(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            plugin = Path(directory) / "engineering-skills"
+            shutil.copytree(ROOT / "plugins" / "engineering-skills", plugin)
+            expected = "0.2.0+codex.upstream-aaaaaaaaaaaa"
+            set_plugin_version(plugin, expected)
+            portable = json.loads((plugin / "plugin.json").read_text("utf-8"))
+            compatibility = json.loads(
+                (plugin / ".codex-plugin" / "plugin.json").read_text("utf-8")
+            )
+            self.assertEqual(portable["version"], expected)
+            self.assertEqual(compatibility["version"], expected)
+            validate_plugin(plugin, "engineering-skills")
+
+    def test_upstream_version_update_rolls_back_both_manifests_on_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            plugin = Path(directory) / "engineering-skills"
+            shutil.copytree(ROOT / "plugins" / "engineering-skills", plugin)
+            paths = (
+                plugin / "plugin.json",
+                plugin / ".codex-plugin" / "plugin.json",
+            )
+            originals = tuple(path.read_bytes() for path in paths)
+            real_replace = os.replace
+            failed_once = False
+
+            def fail_second_manifest(source: str | os.PathLike[str], destination: str | os.PathLike[str]) -> None:
+                nonlocal failed_once
+                if Path(destination) == paths[1] and not failed_once:
+                    failed_once = True
+                    raise OSError("simulated replacement failure")
+                real_replace(source, destination)
+
+            with patch("update_upstreams.os.replace", side_effect=fail_second_manifest):
+                with self.assertRaisesRegex(OSError, "simulated replacement failure"):
+                    set_plugin_version(plugin, "0.3.0")
+
+            self.assertEqual(tuple(path.read_bytes() for path in paths), originals)
+
+    def test_upstream_lock_records_digest_of_generated_content(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            vendored = root / "vendor"
+            vendored.mkdir()
+            (vendored / "one.txt").write_bytes(b"one\r\n")
+            lock_path = root / "sources.lock.json"
+            lock_path.write_text(
+                json.dumps({"sources": {"fixture": {"commit": "a" * 40}}}),
+                encoding="utf-8",
+            )
+
+            update_source_lock(lock_path, "fixture", "b" * 40, vendored)
+
+            source = json.loads(lock_path.read_text("utf-8"))["sources"]["fixture"]
+            self.assertEqual(source["commit"], "b" * 40)
+            self.assertEqual(
+                source["contentSha256"],
+                "84e2196c31ecfb330711e3d935fb68c266fb0a23478d8af0ba913470cf670f1c",
+            )
+
+    def test_upstream_transformation_materializes_lf_text_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            skill = source / "example"
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_bytes(b"---\r\nname: example\r\n---\r\n")
+            stage = root / "stage"
+
+            self.assertEqual(flatten_skills(source, stage), 1)
+
+            self.assertEqual(
+                (stage / "example" / "SKILL.md").read_bytes(),
+                b"---\nname: example\n---\n",
+            )
+
+    def test_provenance_validation_detects_content_and_license_failures(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            vendored = root / "vendor"
+            vendored.mkdir()
+            (vendored / "one.txt").write_text("one", encoding="utf-8")
+            license_path = root / "LICENSES" / "source.txt"
+            license_path.parent.mkdir()
+            license_path.write_text("license", encoding="utf-8")
+            source = {
+                "commit": "a" * 40,
+                "license": "MIT",
+                "licensePath": "LICENSES/source.txt",
+                "destination": "vendor",
+                "contentSha256": digest_directory(vendored),
+            }
+            validate_source_provenance(root, "fixture", source)
+
+            for operation in ("modify", "rename", "missing", "extra"):
+                with self.subTest(operation=operation):
+                    fixture = root / operation
+                    shutil.copytree(vendored, fixture)
+                    fixture_source = {**source, "destination": operation}
+                    target = fixture / "one.txt"
+                    if operation == "modify":
+                        target.write_text("changed", encoding="utf-8")
+                    elif operation == "rename":
+                        target.rename(fixture / "renamed.txt")
+                    elif operation == "missing":
+                        target.unlink()
+                    else:
+                        (fixture / "extra.txt").write_text("extra", encoding="utf-8")
+                    with self.assertRaisesRegex(
+                        VerificationError, "vendored content digest does not match"
+                    ):
+                        validate_source_provenance(root, "fixture", fixture_source)
+
+            license_path.unlink()
+            with self.assertRaisesRegex(VerificationError, "license file is missing"):
+                validate_source_provenance(root, "fixture", source)
+
+    def test_provenance_digest_detects_line_ending_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            text = root / "skill.md"
+            text.write_bytes(b"first\r\nsecond\r\n")
+            crlf_digest = digest_directory(root)
+            text.write_bytes(b"first\nsecond\n")
+            self.assertNotEqual(crlf_digest, digest_directory(root))
+
+    def test_vendored_text_matches_declared_lf_checkout_policy(self) -> None:
+        vendored = ROOT / "plugins" / "engineering-skills" / "skills"
+        files = sorted(path for path in vendored.rglob("*") if path.is_file())
+        relative_paths = [path.relative_to(ROOT).as_posix() for path in files]
+        for path in files:
+            content = path.read_bytes()
+            try:
+                content.decode("utf-8")
+            except UnicodeDecodeError:
+                continue
+            self.assertNotIn(b"\r", content, path.relative_to(ROOT).as_posix())
+
+        attributes = subprocess.run(
+            ["git", "check-attr", "eol", "--", *relative_paths],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout.splitlines()
+        self.assertEqual(len(attributes), len(files))
+        for attribute in attributes:
+            self.assertTrue(attribute.endswith(": eol: lf"), attribute)
 
     def test_profiles_only_reference_known_marketplace_plugins(self) -> None:
         marketplace = json.loads(
@@ -130,6 +369,8 @@ class MarketplaceContractTests(unittest.TestCase):
         status = responses[2]["result"]["structuredContent"]
         self.assertTrue(status["healthy"])
         self.assertTrue(status["codexManifestPresent"])
+        self.assertTrue(status["portableManifestPresent"])
+        self.assertTrue(status["portableMcpConfigPresent"])
         self.assertEqual(status["marketplace"], "blidesign-ai-toolkit")
         self.assertEqual(status["pluginCount"], 3)
         self.assertEqual(status["profileCount"], 3)

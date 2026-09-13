@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "marketplace-maintainer",
+  "version": "0.2.0",
+  "description": "Audit, update, and verify this portable AI toolkit marketplace.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": ["marketplace", "plugins", "maintenance"]
+}

@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import codecs
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -12,6 +14,7 @@ import tempfile
 import uuid
 from pathlib import Path
 
+from provenance import digest_directory
 from sync_catalog import build_catalog
 
 
@@ -87,18 +90,76 @@ def flatten_skills(source_root: Path, stage: Path) -> int:
                 "  allow_implicit_invocation: false\n",
                 encoding="utf-8",
             )
+    normalize_text_line_endings(stage)
     return len(skill_directories)
+
+
+def normalize_text_line_endings(directory: Path) -> None:
+    """Materialize UTF-8 vendored text with LF bytes on every host."""
+    for path in directory.rglob("*"):
+        if not path.is_file():
+            continue
+        content = path.read_bytes()
+        try:
+            text = content.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+        path.write_bytes(codecs.encode(normalized, "utf-8"))
+
+
+def set_plugin_version(plugin_root: Path, version: str) -> None:
+    """Update both manifest versions, restoring both if replacement fails."""
+    manifest_paths = (
+        plugin_root / "plugin.json",
+        plugin_root / ".codex-plugin" / "plugin.json",
+    )
+    originals: dict[Path, bytes] = {}
+    staged: dict[Path, Path] = {}
+    for manifest_path in manifest_paths:
+        originals[manifest_path] = manifest_path.read_bytes()
+        manifest = json.loads(originals[manifest_path].decode("utf-8"))
+        manifest["version"] = version
+        stage = manifest_path.with_name(f".{manifest_path.name}.{uuid.uuid4().hex}.tmp")
+        stage.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        staged[manifest_path] = stage
+
+    replaced: list[Path] = []
+    try:
+        for manifest_path in manifest_paths:
+            os.replace(staged[manifest_path], manifest_path)
+            replaced.append(manifest_path)
+    except BaseException:
+        for manifest_path in replaced:
+            rollback = manifest_path.with_name(
+                f".{manifest_path.name}.{uuid.uuid4().hex}.rollback"
+            )
+            rollback.write_bytes(originals[manifest_path])
+            os.replace(rollback, manifest_path)
+        raise
+    finally:
+        for stage in staged.values():
+            stage.unlink(missing_ok=True)
+
+
+def update_source_lock(
+    lock_path: Path, source_name: str, commit: str, destination: Path
+) -> None:
+    """Record the upstream commit and digest generated from installed content."""
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["sources"][source_name]["commit"] = commit
+    lock["sources"][source_name]["contentSha256"] = digest_directory(destination)
+    stage = lock_path.with_name(f".{lock_path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        stage.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+        os.replace(stage, lock_path)
+    finally:
+        stage.unlink(missing_ok=True)
 
 
 def apply_update(source_name: str, source: dict[str, str], commit: str) -> int:
     destination = ensure_repo_path(ROOT / source["destination"])
-    license_destination = ensure_repo_path(
-        ROOT
-        / "plugins"
-        / "engineering-skills"
-        / "LICENSES"
-        / "mattpocock-skills-MIT.txt"
-    )
+    license_destination = ensure_repo_path(ROOT / source["licensePath"])
     with tempfile.TemporaryDirectory(prefix="marketplace-upstream-") as directory:
         checkout = Path(directory) / "checkout"
         run_git("clone", "--depth", "1", source["repository"], str(checkout))
@@ -125,20 +186,17 @@ def apply_update(source_name: str, source: dict[str, str], commit: str) -> int:
                 shutil.rmtree(stage)
             raise
 
-    lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
-    lock["sources"][source_name]["commit"] = commit
-    LOCK_PATH.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+    update_source_lock(LOCK_PATH, source_name, commit, destination)
     catalog_path = ROOT / "plugins" / "developer-mcps" / "assets" / "catalog.json"
     catalog = build_catalog()
     catalog_path.write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
 
     cachebuster = f"codex.upstream-{commit[:12]}"
     for plugin_name in ("engineering-skills", "developer-mcps"):
-        manifest_path = ROOT / "plugins" / plugin_name / ".codex-plugin" / "plugin.json"
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        base_version = str(manifest["version"]).split("+", 1)[0]
-        manifest["version"] = f"{base_version}+{cachebuster}"
-        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        plugin_root = ROOT / "plugins" / plugin_name
+        portable = json.loads((plugin_root / "plugin.json").read_text(encoding="utf-8"))
+        base_version = str(portable["version"]).split("+", 1)[0]
+        set_plugin_version(plugin_root, f"{base_version}+{cachebuster}")
     return count
 
 

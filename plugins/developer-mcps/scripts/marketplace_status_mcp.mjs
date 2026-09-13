@@ -17,6 +17,8 @@ function marketplaceStatus() {
   const codexManifestPresent = existsSync(
     join(pluginRoot, ".codex-plugin", "plugin.json"),
   );
+  const portableManifestPresent = existsSync(join(pluginRoot, "plugin.json"));
+  const portableMcpConfigPresent = existsSync(join(pluginRoot, "mcp.json"));
   const skillExists = existsSync(
     join(pluginRoot, "skills", "portable-mcp-status", "SKILL.md"),
   );
@@ -24,6 +26,8 @@ function marketplaceStatus() {
   return {
     healthy: skillExists && Array.isArray(catalog.plugins) && catalog.plugins.length > 0,
     codexManifestPresent,
+    portableManifestPresent,
+    portableMcpConfigPresent,
     marketplace: catalog.marketplace,
     pluginCount: catalog.plugins.length,
     plugins: catalog.plugins,

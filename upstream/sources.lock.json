@@ -5,9 +5,12 @@
       "repository": "https://github.com/mattpocock/skills.git",
       "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
       "license": "MIT",
+      "licensePath": "plugins/engineering-skills/LICENSES/mattpocock-skills-MIT.txt",
       "destination": "plugins/engineering-skills/skills",
+      "contentSha256": "6c518ecd1b9c536a0374700af1faa4795924eca3107106e47195a735c927d5f8",
       "updateStrategy": "flatten-skill-directories",
       "transformations": [
+        "normalize UTF-8 vendored text line endings to LF before hashing",
         "translate disable-model-invocation true to Codex explicit-only agents/openai.yaml policy"
       ]
     }

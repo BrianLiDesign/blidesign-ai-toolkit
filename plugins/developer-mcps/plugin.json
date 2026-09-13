@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "developer-mcps",
+  "version": "0.2.0",
+  "description": "Portable, local MCP utilities for inspecting this marketplace.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": ["mcp", "developer-tools", "health-check"]
+}

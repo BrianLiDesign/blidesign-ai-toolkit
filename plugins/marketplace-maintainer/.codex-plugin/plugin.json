@@ -1,6 +1,6 @@
 {
   "name": "marketplace-maintainer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Audit, update, and verify this portable AI toolkit marketplace.",
   "author": {
     "name": "Brian Li"

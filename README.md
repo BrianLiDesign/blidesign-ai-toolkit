@@ -4,6 +4,10 @@ A portable package of Agent Skills and MCP utilities you can install onto Codex,
 or any other host that discovers `SKILL.md` folders. The repository vendors redistributable source
 and references managed plugins by their original marketplace identifiers where a host supports that.
 
+Owned plugins use the Agent Plugins root `plugin.json` as their portable identity and retain
+`.codex-plugin/plugin.json` for OpenAI compatibility. The local MCP plugin likewise provides portable
+`mcp.json` and compatibility `.mcp.json` definitions.
+
 ## Included plugins
 
 - **engineering-skills**: 37 pinned Matt Pocock engineering and productivity skills.
@@ -36,9 +40,10 @@ Common destinations:
 
 Use `--dry-run` to preview copies. Restart or reload the agent afterward so new skills are picked up.
 
-To expose the local status MCP outside Codex, point your host's MCP config at
-`plugins/developer-mcps/.mcp.json` (or the `node …/marketplace_status_mcp.mjs` command it declares),
-using paths appropriate for that machine. Do not commit absolute paths.
+To expose the local status MCP outside Codex, use `plugins/developer-mcps/mcp.json` as the portable
+source of truth and translate its relative stdio command into the host's documented MCP
+configuration. `.mcp.json` is retained only as the Codex compatibility definition. Use paths
+appropriate for that machine and do not commit absolute paths.
 
 ## Install with Codex
 
@@ -103,7 +108,8 @@ py scripts/verify.py
 py -m unittest discover -s tests -v
 ```
 
-The verifier checks marketplace and plugin schemas, profiles, semver, upstream provenance, declared
+The verifier checks marketplace and plugin schemas, portable-to-compatibility identity consistency,
+portable MCP transports, profiles, semver, upstream provenance and content digests, declared
 component paths, licenses, and common committed-secret signatures.
 
 Validate a plugin with the Codex plugin validator when developing locally:
@@ -113,7 +119,8 @@ py C:\Users\YOUR_NAME\.codex\skills\.system\plugin-creator\scripts\validate_plug
 ```
 
 The validation command intentionally contains a placeholder because the system skill path is local
-to each account; do not commit an expanded user-specific path.
+to each account; do not commit an expanded user-specific path. Run it from a Python environment that
+provides the validator's dependencies, including PyYAML.
 
 ## Inventory
 

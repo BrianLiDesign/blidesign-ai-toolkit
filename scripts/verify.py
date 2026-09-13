@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from sync_catalog import build_catalog
+from provenance import digest_directory
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,9 @@ SECRET_PATTERNS = {
     "GitHub token": re.compile(r"gh[oprsu]_[A-Za-z0-9]{20,}"),
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 }
+PORTABLE_PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+PORTABLE_MCP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json"
+PORTABLE_IDENTITY_FIELDS = ("name", "version", "description", "license")
 
 
 class VerificationError(RuntimeError):
@@ -65,29 +69,129 @@ def validate_marketplace() -> tuple[str, set[str]]:
     return name, names
 
 
+def resolve_plugin_path(plugin_dir: Path, value: Any, field: str) -> Path:
+    if not isinstance(value, str) or not value.startswith("./"):
+        raise VerificationError(f"{plugin_dir.name}: {field} must be a ./-relative path")
+    resolved = (plugin_dir / value[2:]).resolve()
+    if not resolved.is_relative_to(plugin_dir.resolve()):
+        raise VerificationError(f"{plugin_dir.name}: {field} escapes the plugin root")
+    return resolved
+
+
+def validate_portable_mcp(plugin_dir: Path, path: Path) -> set[str]:
+    configuration = load_json(path)
+    if configuration.get("$schema") != PORTABLE_MCP_SCHEMA:
+        raise VerificationError(f"{plugin_dir.name}: mcp.json uses an unsupported schema")
+    if set(configuration) != {"$schema", "mcpServers"}:
+        raise VerificationError(f"{plugin_dir.name}: mcp.json has unsupported fields")
+    servers = configuration.get("mcpServers")
+    if not isinstance(servers, dict) or not servers:
+        raise VerificationError(f"{plugin_dir.name}: mcp.json must declare at least one server")
+
+    for server_name, server in servers.items():
+        if not isinstance(server_name, str) or not server_name or not isinstance(server, dict):
+            raise VerificationError(f"{plugin_dir.name}: mcp.json contains an invalid server")
+        server_type = server.get("type")
+        if server_type == "stdio":
+            allowed = {"type", "command", "args", "env", "cwd"}
+            if set(server) - allowed:
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} has unsupported stdio fields"
+                )
+            if not isinstance(server.get("command"), str) or not server["command"]:
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} requires a command"
+                )
+            args = server.get("args", [])
+            if not isinstance(args, list) or not all(isinstance(item, str) for item in args):
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} args must be strings"
+                )
+            cwd = server.get("cwd")
+            if cwd is not None:
+                if isinstance(cwd, str) and cwd.startswith("./"):
+                    resolve_plugin_path(plugin_dir, cwd, f"mcpServers.{server_name}.cwd")
+                elif not isinstance(cwd, str) or not cwd.startswith(
+                    ("${PLUGIN_ROOT}/", "${PLUGIN_DATA}/")
+                ):
+                    raise VerificationError(
+                        f"{plugin_dir.name}: {server_name} has an invalid cwd"
+                    )
+            environment = server.get("env", {})
+            if not isinstance(environment, dict) or not all(
+                isinstance(key, str) and isinstance(value, str)
+                for key, value in environment.items()
+            ):
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} env must contain strings"
+                )
+            if {"PLUGIN_ROOT", "PLUGIN_DATA"}.intersection(environment):
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} cannot override plugin path variables"
+                )
+        else:
+            raise VerificationError(
+                f"{plugin_dir.name}: {server_name} uses an unsupported transport"
+            )
+    return set(servers)
+
+
 def validate_plugin(plugin_dir: Path, expected_name: str) -> None:
-    manifest_path = plugin_dir / ".codex-plugin" / "plugin.json"
-    manifest = load_json(manifest_path)
-    if plugin_dir.name != expected_name or manifest.get("name") != expected_name:
+    portable_path = plugin_dir / "plugin.json"
+    portable = load_json(portable_path)
+    if portable.get("$schema") != PORTABLE_PLUGIN_SCHEMA:
+        raise VerificationError(f"{expected_name}: root plugin.json uses an unsupported schema")
+    if plugin_dir.name != expected_name or portable.get("name") != expected_name:
         raise VerificationError(f"{expected_name}: folder and manifest names must match")
-    if not SEMVER.fullmatch(str(manifest.get("version", ""))):
+    if not SEMVER.fullmatch(str(portable.get("version", ""))):
         raise VerificationError(f"{expected_name}: version must be strict semver")
-    for field in ("description", "author", "interface"):
-        if not manifest.get(field):
+    for field in ("description", "author", "license"):
+        if not portable.get(field):
             raise VerificationError(f"{expected_name}: {field} is required")
 
-    skills_path = manifest.get("skills")
+    compatibility_path = plugin_dir / ".codex-plugin" / "plugin.json"
+    compatibility = load_json(compatibility_path)
+    for field in PORTABLE_IDENTITY_FIELDS:
+        if compatibility.get(field) != portable.get(field):
+            raise VerificationError(
+                f"{expected_name}: compatibility manifest {field} differs from portable identity"
+            )
+    if not compatibility.get("author") or not compatibility.get("interface"):
+        raise VerificationError(f"{expected_name}: compatibility presentation is incomplete")
+
+    skills_path = compatibility.get("skills")
     if skills_path:
-        skills_dir = plugin_dir / str(skills_path).removeprefix("./")
+        skills_dir = resolve_plugin_path(plugin_dir, skills_path, "skills")
         if not any(skills_dir.glob("*/SKILL.md")):
             raise VerificationError(f"{expected_name}: declared skills path has no skills")
 
-    mcp_path = manifest.get("mcpServers")
-    if mcp_path:
-        resolved = plugin_dir / str(mcp_path).removeprefix("./")
-        mcp = load_json(resolved)
-        if not mcp.get("mcpServers"):
+    compatibility_mcp = compatibility.get("mcpServers")
+    portable_mcp_path = plugin_dir / "mcp.json"
+    portable_server_names: set[str] = set()
+    if portable_mcp_path.exists():
+        portable_server_names = validate_portable_mcp(plugin_dir, portable_mcp_path)
+    if compatibility_mcp:
+        resolved = resolve_plugin_path(plugin_dir, compatibility_mcp, "mcpServers")
+        legacy_mcp = load_json(resolved)
+        legacy_servers = legacy_mcp.get("mcpServers")
+        if not isinstance(legacy_servers, dict) or not legacy_servers:
             raise VerificationError(f"{expected_name}: declared MCP configuration is empty")
+        if not portable_mcp_path.exists():
+            raise VerificationError(
+                f"{expected_name}: portable plugin with MCP requires root mcp.json"
+            )
+        if set(legacy_servers) != portable_server_names:
+            raise VerificationError(
+                f"{expected_name}: portable and compatibility MCP server names differ"
+            )
+        portable_servers = load_json(portable_mcp_path)["mcpServers"]
+        for server_name, legacy_server in legacy_servers.items():
+            portable_server = portable_servers[server_name]
+            for field in ("command", "args"):
+                if legacy_server.get(field) != portable_server.get(field):
+                    raise VerificationError(
+                        f"{expected_name}: {server_name} {field} differs between MCP configs"
+                    )
 
 
 def validate_profiles(marketplace_name: str, plugin_names: set[str]) -> None:
@@ -121,19 +225,35 @@ def validate_packaged_catalog(marketplace_name: str, plugin_names: set[str]) -> 
         raise VerificationError("Packaged MCP catalog is stale; run scripts/sync_catalog.py")
 
 
+def validate_source_provenance(root: Path, name: str, source: dict[str, Any]) -> None:
+    if not SHA.fullmatch(str(source.get("commit", ""))):
+        raise VerificationError(f"{name}: upstream commit must be a full SHA")
+    destination = (root / str(source.get("destination", ""))).resolve()
+    if not destination.is_relative_to(root.resolve()):
+        raise VerificationError(f"{name}: destination escapes the repository")
+    if not destination.is_dir():
+        raise VerificationError(f"{name}: destination does not exist")
+    if not source.get("license"):
+        raise VerificationError(f"{name}: license is required")
+    license_path = (root / str(source.get("licensePath", ""))).resolve()
+    if not license_path.is_relative_to(root.resolve()) or not license_path.is_file():
+        raise VerificationError(f"{name}: vendored license file is missing")
+    expected_digest = source.get("contentSha256")
+    if not isinstance(expected_digest, str) or not re.fullmatch(
+        r"[0-9a-f]{64}", expected_digest
+    ):
+        raise VerificationError(f"{name}: contentSha256 must be a SHA-256 digest")
+    if digest_directory(destination) != expected_digest:
+        raise VerificationError(f"{name}: vendored content digest does not match")
+
+
 def validate_provenance() -> None:
     lock = load_json(ROOT / "upstream" / "sources.lock.json")
     sources = lock.get("sources", {})
     if not sources:
         raise VerificationError("At least one upstream source must be recorded")
     for name, source in sources.items():
-        if not SHA.fullmatch(str(source.get("commit", ""))):
-            raise VerificationError(f"{name}: upstream commit must be a full SHA")
-        destination = ROOT / str(source.get("destination", ""))
-        if not destination.is_dir():
-            raise VerificationError(f"{name}: destination does not exist")
-        if not source.get("license"):
-            raise VerificationError(f"{name}: license is required")
+        validate_source_provenance(ROOT, name, source)
 
 
 def scan_for_secrets() -> None:

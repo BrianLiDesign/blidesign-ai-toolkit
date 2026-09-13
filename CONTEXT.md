@@ -8,9 +8,13 @@ plugin source; other agents consume the same skill folders through their own ins
 
 ## Marketplace plugin
 
-A portable installable unit under `plugins/`. Each plugin has a matching folder name. Codex packaging
-uses a matching `.codex-plugin/plugin.json` name. A plugin may contain skills, MCP servers, scripts,
-or assets.
+A portable installable unit under `plugins/`. Each plugin has a matching folder name and uses a root
+`plugin.json` as its portable identity. A plugin may contain skills, MCP servers, scripts, or assets.
+
+## Compatibility overlay
+
+Host-specific plugin metadata that supplements a portable marketplace plugin without redefining its
+identity or content model. Codex compatibility metadata lives in `.codex-plugin/plugin.json`.
 
 ## Profile
 
@@ -20,8 +24,9 @@ machine setup intentional rather than installing every integration everywhere. C
 
 ## Vendored source
 
-Licensed third-party source copied into a marketplace plugin. Every vendored source has a full Git
-commit and license recorded in `upstream/sources.lock.json`.
+Licensed third-party source copied into a marketplace plugin. Every vendored source has its
+repository, full Git commit, license, vendored license path, transformations, and exact-content
+digest recorded in `upstream/sources.lock.json`.
 
 ## External plugin
 
