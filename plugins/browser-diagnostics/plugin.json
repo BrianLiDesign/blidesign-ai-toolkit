@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "browser-diagnostics",
+  "version": "0.1.0",
+  "description": "Optional Chrome DevTools MCP for performance, console, and network diagnosis.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ]
+}

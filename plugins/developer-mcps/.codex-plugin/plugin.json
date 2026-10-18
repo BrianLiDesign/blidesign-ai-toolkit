@@ -1,12 +1,16 @@
 {
   "name": "developer-mcps",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Portable, local MCP utilities for inspecting this marketplace.",
   "author": {
     "name": "Brian Li"
   },
   "license": "MIT",
-  "keywords": ["mcp", "developer-tools", "health-check"],
+  "keywords": [
+    "mcp",
+    "developer-tools",
+    "health-check"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Developer MCPs",
@@ -14,7 +18,9 @@
     "longDescription": "A dependency-free local MCP server that reports plugin, profile, and provenance health without reading credentials.",
     "developerName": "Brian Li",
     "category": "Developer Tools",
-    "capabilities": ["Inspect"],
+    "capabilities": [
+      "Inspect"
+    ],
     "defaultPrompt": [
       "Check the portable marketplace status.",
       "List the plugins and profiles in this marketplace."

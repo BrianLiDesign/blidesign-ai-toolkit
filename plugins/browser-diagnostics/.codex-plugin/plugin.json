@@ -1,0 +1,28 @@
+{
+  "name": "browser-diagnostics",
+  "version": "0.1.0",
+  "description": "Optional Chrome DevTools MCP for performance, console, and network diagnosis.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ],
+  "interface": {
+    "displayName": "Browser Diagnostics",
+    "shortDescription": "Optional Chrome DevTools MCP for performance, console, and network diagnosis.",
+    "longDescription": "Optional Chrome DevTools MCP for performance, console, and network diagnosis.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Inspect",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Diagnose this page using Chrome DevTools."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

@@ -4,7 +4,8 @@
   "plugins": [
     "engineering-skills",
     "marketplace-maintainer",
-    "developer-mcps"
+    "developer-mcps",
+    "toolkit-workflows"
   ],
   "externalPlugins": [
     {

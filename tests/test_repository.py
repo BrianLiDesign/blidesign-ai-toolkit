@@ -26,7 +26,8 @@ class MarketplaceContractTests(unittest.TestCase):
         entries = marketplace["plugins"]
         self.assertEqual(
             [entry["name"] for entry in entries],
-            ["engineering-skills", "marketplace-maintainer", "developer-mcps"],
+            ["engineering-skills", "marketplace-maintainer", "developer-mcps",
+             "toolkit-workflows", "browser-diagnostics"],
         )
         for entry in entries:
             self.assertEqual(entry["source"]["source"], "local")
@@ -59,6 +60,8 @@ class MarketplaceContractTests(unittest.TestCase):
             "engineering-skills",
             "marketplace-maintainer",
             "developer-mcps",
+            "toolkit-workflows",
+            "browser-diagnostics",
         ):
             with self.subTest(plugin=plugin_name):
                 plugin = ROOT / "plugins" / plugin_name
@@ -295,11 +298,13 @@ class MarketplaceContractTests(unittest.TestCase):
                 "engineering-skills",
                 "marketplace-maintainer",
                 "developer-mcps",
+                "toolkit-workflows",
             ],
             "full": [
                 "engineering-skills",
                 "marketplace-maintainer",
                 "developer-mcps",
+                "toolkit-workflows",
             ],
         }
         for profile_name, expected_plugins in expected.items():
@@ -372,9 +377,38 @@ class MarketplaceContractTests(unittest.TestCase):
         self.assertTrue(status["portableManifestPresent"])
         self.assertTrue(status["portableMcpConfigPresent"])
         self.assertEqual(status["marketplace"], "blidesign-ai-toolkit")
-        self.assertEqual(status["pluginCount"], 3)
+        self.assertEqual(status["pluginCount"], 5)
         self.assertEqual(status["profileCount"], 3)
         self.assertEqual(status["vendoredSkillCount"], 37)
+
+    def test_development_sync_adds_workflows_and_preserves_unrelated_skills(self) -> None:
+        from sync_skills import iter_skill_dirs, plugin_paths_for_profile, sync_skills
+
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "skills"
+            unrelated = target / "host-builtin" / "SKILL.md"
+            unrelated.parent.mkdir(parents=True)
+            unrelated.write_text("host-owned", encoding="utf-8")
+            skills = iter_skill_dirs(plugin_paths_for_profile("development"))
+            sync_skills(target, skills, dry_run=False)
+            for name in ("pr-closeout", "release-acceptance", "find-docs", "toolkit-smoke-test"):
+                self.assertTrue((target / name / "SKILL.md").is_file(), name)
+            self.assertEqual(unrelated.read_text("utf-8"), "host-owned")
+            self.assertFalse((target / "browser-diagnostics").exists())
+
+    def test_browser_diagnostics_is_opt_in_and_pins_the_same_server_on_both_hosts(self) -> None:
+        plugin = ROOT / "plugins" / "browser-diagnostics"
+        portable = json.loads((plugin / "mcp.json").read_text("utf-8"))
+        compatibility = json.loads((plugin / ".mcp.json").read_text("utf-8"))
+        server = portable["mcpServers"]["chrome-devtools"]
+        self.assertEqual(server["command"], "npx")
+        self.assertIn("chrome-devtools-mcp@1.11.0", server["args"])
+        self.assertIn("--isolated", server["args"])
+        self.assertIn("--headless", server["args"])
+        self.assertIn("--no-usage-statistics", server["args"])
+        self.assertEqual(server["args"], compatibility["mcpServers"]["chrome-devtools"]["args"])
+        for path in (ROOT / "profiles").glob("*.json"):
+            self.assertNotIn("browser-diagnostics", json.loads(path.read_text("utf-8"))["plugins"])
 
     def test_sync_skills_dry_run_lists_profile_skills(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -591,6 +625,7 @@ class MarketplaceContractTests(unittest.TestCase):
                     "developer-mcps@blidesign-ai-toolkit",
                     "engineering-skills@blidesign-ai-toolkit",
                     "marketplace-maintainer@blidesign-ai-toolkit",
+                    "toolkit-workflows@blidesign-ai-toolkit",
                 ],
             )
 

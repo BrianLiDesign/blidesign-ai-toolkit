@@ -1,0 +1,28 @@
+{
+  "name": "toolkit-workflows",
+  "version": "0.1.0",
+  "description": "Close PRs, verify releases, fetch current docs, and smoke-test agent installations.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "workflows"
+  ],
+  "interface": {
+    "displayName": "Toolkit Workflows",
+    "shortDescription": "Close PRs, verify releases, fetch current docs, and smoke-test agent installations.",
+    "longDescription": "Close PRs, verify releases, fetch current docs, and smoke-test agent installations.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Inspect",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Verify this toolkit installation."
+    ]
+  },
+  "skills": "./skills/"
+}

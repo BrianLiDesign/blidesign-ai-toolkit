@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "toolkit-workflows",
+  "version": "0.1.0",
+  "description": "Close PRs, verify releases, fetch current docs, and smoke-test agent installations.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "workflows"
+  ]
+}

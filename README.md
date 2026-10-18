@@ -13,6 +13,9 @@ Owned plugins use the Agent Plugins root `plugin.json` as their portable identit
 - **engineering-skills**: 37 pinned Matt Pocock engineering and productivity skills.
 - **marketplace-maintainer**: a skill for auditing provenance, manifests, profiles, and releases.
 - **developer-mcps**: a dependency-free local MCP server that reports marketplace health.
+- **toolkit-workflows**: PR closeout, release acceptance, current documentation lookup, and
+  cross-host installation smoke tests.
+- **browser-diagnostics**: opt-in Chrome DevTools MCP, pinned to version 1.11.0.
 
 Profiles select which plugins to install. The `development` and `full` profiles also list useful
 OpenAI-managed plugins as optional **Codex** external dependencies. They remain subject to account
@@ -94,12 +97,44 @@ bash scripts/bootstrap.sh --profile full --source OWNER/blidesign-ai-toolkit --r
 | Profile | Marketplace plugins | Optional external plugins (Codex) |
 | --- | --- | --- |
 | `minimal` | Maintainer | None |
-| `development` | Engineering, maintainer, MCP status | GitHub, Browser Act |
-| `full` | Engineering, maintainer, MCP status | GitHub, Notion, Browser Act, Data Analytics, Product Design |
+| `development` | Engineering, maintainer, MCP status, toolkit workflows | GitHub, Browser Act |
+| `full` | Engineering, maintainer, MCP status, toolkit workflows | GitHub, Notion, Browser Act, Data Analytics, Product Design |
 
 Pass `-SkipExternal` or `--skip-external` on Codex bootstrap to install only plugins owned by this
 marketplace. Use `-DryRun` or `--dry-run` to preview every Codex command. The same profile names feed
 `scripts/sync_skills.py`.
+
+### Optional browser diagnostics
+
+Install this integration separately after registering the marketplace:
+
+```text
+codex plugin add browser-diagnostics@blidesign-ai-toolkit
+```
+
+For other MCP hosts, translate `plugins/browser-diagnostics/mcp.json` into the host's documented
+configuration. It requires Node.js supported by the pinned package and an installed Google Chrome.
+The first launch downloads the package through npm; each host starts its own temporary headless
+Chrome profile. Usage statistics and CrUX field-data requests are disabled. The server is launched
+on demand by the host rather than installed as a background service. See the
+[upstream documentation](https://github.com/ChromeDevTools/chrome-devtools-mcp) for requirements.
+
+The integration is absent from every default profile. Install it only on hosts where browser
+diagnostics are wanted. Browser Act remains the profile's general browser interaction option.
+The upstream package runs through npm; its source is not vendored into this repository.
+
+### Toolkit workflows
+
+The development and full profiles sync 43 skills, including these four owned workflows:
+
+- `pr-closeout`: review remediation, CI, metadata, authorized merge, and post-merge verification.
+- `release-acceptance`: public behavior checks, persistence read-back, evidence, and fixture cleanup.
+- `find-docs`: current documentation through the Context7 CLI, with source citations.
+- `toolkit-smoke-test`: installed versions, skill discovery, MCP startup, and harmless tool calls.
+
+Keep an existing personal `find-docs` installation in only one host-discovered location to avoid
+duplicate discovery. Back up personal customizations before replacing it with the packaged skill.
+The new workflows are maintained separately from the unchanged pinned Matt Pocock collection.
 
 ## Verify
 

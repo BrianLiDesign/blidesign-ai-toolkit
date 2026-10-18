@@ -39,6 +39,30 @@
         "authentication": "ON_USE"
       },
       "category": "Developer Tools"
+    },
+    {
+      "name": "toolkit-workflows",
+      "source": {
+        "source": "local",
+        "path": "./plugins/toolkit-workflows"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "browser-diagnostics",
+      "source": {
+        "source": "local",
+        "path": "./plugins/browser-diagnostics"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
     }
   ]
 }
