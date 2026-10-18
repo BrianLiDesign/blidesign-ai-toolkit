@@ -129,6 +129,18 @@ def validate_portable_mcp(plugin_dir: Path, path: Path) -> set[str]:
                 raise VerificationError(
                     f"{plugin_dir.name}: {server_name} cannot override plugin path variables"
                 )
+        elif server_type == "http":
+            if set(server) != {"type", "url"}:
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} HTTP configuration must use host-managed authentication"
+                )
+            from urllib.parse import urlparse
+
+            url = urlparse(str(server.get("url", "")))
+            if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment:
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} requires a public HTTPS URL without credentials"
+                )
         else:
             raise VerificationError(
                 f"{plugin_dir.name}: {server_name} uses an unsupported transport"
@@ -187,7 +199,7 @@ def validate_plugin(plugin_dir: Path, expected_name: str) -> None:
         portable_servers = load_json(portable_mcp_path)["mcpServers"]
         for server_name, legacy_server in legacy_servers.items():
             portable_server = portable_servers[server_name]
-            for field in ("command", "args"):
+            for field in ("command", "args", "url", "env"):
                 if legacy_server.get(field) != portable_server.get(field):
                     raise VerificationError(
                         f"{expected_name}: {server_name} {field} differs between MCP configs"

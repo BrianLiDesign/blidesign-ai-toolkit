@@ -16,6 +16,10 @@ Owned plugins use the Agent Plugins root `plugin.json` as their portable identit
 - **toolkit-workflows**: PR closeout, release acceptance, current documentation lookup, and
   cross-host installation smoke tests.
 - **browser-diagnostics**: opt-in Chrome DevTools MCP, pinned to version 1.11.0.
+- **semantic-code**: pinned Serena MCP for symbol navigation, references, and editing.
+- **reverse-engineering**: opt-in REA MCP for inspecting applications and binaries.
+- **github-integration**: optional official GitHub MCP for other hosts; Codex keeps its managed plugin.
+- **error-monitoring**: optional official Sentry MCP, authenticated separately on each host.
 
 Profiles select which plugins to install. The `development` and `full` profiles also list useful
 OpenAI-managed plugins as optional **Codex** external dependencies. They remain subject to account
@@ -97,12 +101,37 @@ bash scripts/bootstrap.sh --profile full --source OWNER/blidesign-ai-toolkit --r
 | Profile | Marketplace plugins | Optional external plugins (Codex) |
 | --- | --- | --- |
 | `minimal` | Maintainer | None |
-| `development` | Engineering, maintainer, MCP status, toolkit workflows | GitHub, Browser Act |
-| `full` | Engineering, maintainer, MCP status, toolkit workflows | GitHub, Notion, Browser Act, Data Analytics, Product Design |
+| `development` | Engineering, maintainer, MCP status, toolkit workflows, Serena | GitHub, Browser Act |
+| `full` | Engineering, maintainer, MCP status, toolkit workflows, Serena | GitHub, Notion, Browser Act, Data Analytics, Product Design |
 
 Pass `-SkipExternal` or `--skip-external` on Codex bootstrap to install only plugins owned by this
 marketplace. Use `-DryRun` or `--dry-run` to preview every Codex command. The same profile names feed
 `scripts/sync_skills.py`.
+
+### Development MCP integrations
+
+Context7 stays available through the existing `find-docs` CLI workflow. Use the existing browser
+integration before adding another browser server. Serena is included in development and full;
+it requires `uvx`, Git, Python 3.13, and language servers appropriate to the project. Its source is
+pinned to a full commit. Browser windows and the Serena dashboard are disabled at startup.
+
+For Claude Code and Cursor, install MCPs separately from skills:
+
+```text
+python scripts/sync_mcps.py --host claude-code --profile full --dry-run
+python scripts/sync_mcps.py --host claude-code --profile full
+python scripts/sync_mcps.py --host cursor --profile full
+```
+
+Add `--plugin github-integration` when the host lacks GitHub access, or `--plugin reverse-engineering`
+for REA. Sentry is available with `--plugin error-monitoring` when you have a Sentry account.
+These plugins remain outside default profiles. Codex users install an optional plugin with
+`codex plugin add PLUGIN_NAME@blidesign-ai-toolkit` instead of running the MCP sync script.
+
+The installer preserves unrelated settings and stages versioned runtime files outside the checkout.
+Conflicting named entries require `--replace`, which creates a timestamped configuration backup.
+Reload the host afterward. OAuth connections need authentication in each application; registration
+does not establish account access. See [integration requirements and verification](docs/mcp-integrations.md).
 
 ### Optional browser diagnostics
 
@@ -211,7 +240,8 @@ directory after pulling updates.
 ## Security and licensing
 
 - Never commit tokens, cookies, `.env` files, agent configuration, caches, or runtime folders.
-- MCP definitions use relative plugin paths and require no credentials.
+- MCP definitions use relative plugin paths or public HTTPS endpoints. Account integrations use
+  host-managed authentication; credentials remain outside the repository.
 - External plugins are installed from their original marketplace rather than copied.
 - Vendored source must retain its license and full commit provenance.
 

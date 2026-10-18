@@ -26,6 +26,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Dry-run skill sync
         run: python scripts/sync_skills.py --profile development --target "${{ runner.temp }}/synced-skills" --dry-run
+      - name: Dry-run portable MCP sync
+        run: python scripts/sync_mcps.py --host cursor --profile development --config "${{ runner.temp }}/mcp-preview.json" --runtime-root "${{ runner.temp }}/mcp-runtime" --dry-run
       - name: Check Bash syntax
         if: runner.os != 'Windows'
         run: bash -n scripts/bootstrap.sh

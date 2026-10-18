@@ -63,6 +63,54 @@
         "authentication": "ON_USE"
       },
       "category": "Developer Tools"
+    },
+    {
+      "name": "semantic-code",
+      "source": {
+        "source": "local",
+        "path": "./plugins/semantic-code"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "reverse-engineering",
+      "source": {
+        "source": "local",
+        "path": "./plugins/reverse-engineering"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "github-integration",
+      "source": {
+        "source": "local",
+        "path": "./plugins/github-integration"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "error-monitoring",
+      "source": {
+        "source": "local",
+        "path": "./plugins/error-monitoring"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
     }
   ]
 }

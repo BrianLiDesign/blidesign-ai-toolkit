@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "reverse-engineering",
+  "version": "0.1.0",
+  "description": "Optional REA MCP for investigating applications and binaries with evidence.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ]
+}

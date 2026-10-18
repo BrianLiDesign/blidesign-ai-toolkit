@@ -1,0 +1,28 @@
+{
+  "name": "semantic-code",
+  "version": "0.1.0",
+  "description": "Pinned Serena MCP for symbol-aware code navigation and editing.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ],
+  "interface": {
+    "displayName": "Semantic Code",
+    "shortDescription": "Pinned Serena MCP for symbol-aware code navigation and editing.",
+    "longDescription": "Pinned Serena MCP for symbol-aware code navigation and editing.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Inspect",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use this integration for the current development task."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

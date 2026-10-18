@@ -6,7 +6,11 @@
     "marketplace-maintainer",
     "developer-mcps",
     "toolkit-workflows",
-    "browser-diagnostics"
+    "browser-diagnostics",
+    "semantic-code",
+    "reverse-engineering",
+    "github-integration",
+    "error-monitoring"
   ],
   "profiles": [
     "development",

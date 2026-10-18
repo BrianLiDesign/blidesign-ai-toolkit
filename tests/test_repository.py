@@ -27,7 +27,8 @@ class MarketplaceContractTests(unittest.TestCase):
         self.assertEqual(
             [entry["name"] for entry in entries],
             ["engineering-skills", "marketplace-maintainer", "developer-mcps",
-             "toolkit-workflows", "browser-diagnostics"],
+             "toolkit-workflows", "browser-diagnostics", "semantic-code",
+             "reverse-engineering", "github-integration", "error-monitoring"],
         )
         for entry in entries:
             self.assertEqual(entry["source"]["source"], "local")
@@ -299,12 +300,14 @@ class MarketplaceContractTests(unittest.TestCase):
                 "marketplace-maintainer",
                 "developer-mcps",
                 "toolkit-workflows",
+                "semantic-code",
             ],
             "full": [
                 "engineering-skills",
                 "marketplace-maintainer",
                 "developer-mcps",
                 "toolkit-workflows",
+                "semantic-code",
             ],
         }
         for profile_name, expected_plugins in expected.items():
@@ -377,7 +380,7 @@ class MarketplaceContractTests(unittest.TestCase):
         self.assertTrue(status["portableManifestPresent"])
         self.assertTrue(status["portableMcpConfigPresent"])
         self.assertEqual(status["marketplace"], "blidesign-ai-toolkit")
-        self.assertEqual(status["pluginCount"], 5)
+        self.assertEqual(status["pluginCount"], 9)
         self.assertEqual(status["profileCount"], 3)
         self.assertEqual(status["vendoredSkillCount"], 37)
 
@@ -625,6 +628,7 @@ class MarketplaceContractTests(unittest.TestCase):
                     "developer-mcps@blidesign-ai-toolkit",
                     "engineering-skills@blidesign-ai-toolkit",
                     "marketplace-maintainer@blidesign-ai-toolkit",
+                    "semantic-code@blidesign-ai-toolkit",
                     "toolkit-workflows@blidesign-ai-toolkit",
                 ],
             )

@@ -55,9 +55,9 @@ source_path="${source_path:-$repository_root}"
 profile_path="$repository_root/profiles/$profile.json"
 
 python_command=""
-if command -v python3 >/dev/null 2>&1; then
+if command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; assert sys.version_info >= (3, 9)' >/dev/null 2>&1; then
   python_command="python3"
-elif command -v python >/dev/null 2>&1; then
+elif command -v python >/dev/null 2>&1 && python -c 'import sys; assert sys.version_info >= (3, 9)' >/dev/null 2>&1; then
   python_command="python"
 fi
 
