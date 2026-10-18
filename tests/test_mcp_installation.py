@@ -86,8 +86,8 @@ class McpInstallationTests(unittest.TestCase):
             servers = build_servers([ROOT / "plugins" / "developer-mcps", ROOT / "plugins" / "reverse-engineering"], runtime, windows=True)
             status = servers["marketplaceStatus"]
             self.assertTrue(Path(status["args"][0]).is_absolute())
-            self.assertTrue(status["args"][0].startswith(str(runtime)))
-            self.assertNotIn(str(ROOT), status["args"][0])
+            self.assertTrue(Path(status["args"][0]).is_relative_to(runtime.resolve()))
+            self.assertFalse(Path(status["args"][0]).is_relative_to(ROOT.resolve()))
             rea = servers["rea"]
             self.assertEqual(rea["command"], "cmd.exe")
             self.assertEqual(rea["args"][:4], ["/d", "/c", "npx", "--yes"])
