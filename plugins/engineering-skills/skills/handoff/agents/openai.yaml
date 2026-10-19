@@ -1,6 +1,5 @@
 interface:
   display_name: "Handoff"
-  short_description: "Explicitly invoke the Handoff workflow"
-  default_prompt: "Use $handoff to guide this task."
+  short_description: "Compact a conversation into a handoff"
 policy:
   allow_implicit_invocation: false

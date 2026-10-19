@@ -73,3 +73,12 @@ A description of the things that are out of scope for this spec.
 Any further notes about the feature.
 
 </spec-template>
+
+<!-- blidesign-toolkit-overlay:start -->
+## Toolkit engineering visuals
+
+When an engineering visual materially clarifies the work, use engineering-visuals when available.
+Read and follow its selected specialist before implementing each diagram; use its domain standards,
+primary-source references, editable deliverables, and rendering/inspection checks. Preserve the
+agreed task scope and distinguish existing behavior from proposed designs.
+<!-- blidesign-toolkit-overlay:end -->

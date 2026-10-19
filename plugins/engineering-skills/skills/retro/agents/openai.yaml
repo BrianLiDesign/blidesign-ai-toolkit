@@ -1,6 +1,5 @@
 interface:
   display_name: "Retro"
-  short_description: "Explicitly invoke the Retro workflow"
-  default_prompt: "Use $retro to guide this task."
+  short_description: "Conduct a retrospective on a coding session."
 policy:
   allow_implicit_invocation: false

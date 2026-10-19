@@ -1,6 +1,5 @@
 interface:
   display_name: "Writing Beats"
-  short_description: "Explicitly invoke the Writing Beats workflow"
-  default_prompt: "Use $writing-beats to guide this task."
+  short_description: "Assemble raw material into beats"
 policy:
   allow_implicit_invocation: false

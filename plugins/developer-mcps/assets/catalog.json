@@ -6,14 +6,18 @@
     "marketplace-maintainer",
     "developer-mcps",
     "toolkit-workflows",
-    "browser-diagnostics"
+    "browser-diagnostics",
+    "semantic-code",
+    "reverse-engineering",
+    "github-integration",
+    "error-monitoring"
   ],
   "profiles": [
     "development",
     "full",
     "minimal"
   ],
-  "vendoredSkillCount": 37,
+  "vendoredSkillCount": 38,
   "upstreamSources": [
     "mattpocock-skills"
   ]

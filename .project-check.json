@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "requiredCategories": ["lint", "test"],
+  "checks": [
+    {"id": "repository", "category": "lint", "argv": ["{python}", "scripts/verify.py"], "timeoutSeconds": 60},
+    {"id": "tests", "category": "test", "argv": ["{python}", "-m", "unittest", "discover", "-s", "tests", "-v"], "timeoutSeconds": 180}
+  ]
+}

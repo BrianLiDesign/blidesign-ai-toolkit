@@ -1,0 +1,28 @@
+{
+  "name": "reverse-engineering",
+  "version": "0.1.0",
+  "description": "Optional REA MCP for investigating applications and binaries with evidence.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ],
+  "interface": {
+    "displayName": "Reverse Engineering",
+    "shortDescription": "Optional REA MCP for investigating applications and binaries with evidence.",
+    "longDescription": "Optional REA MCP for investigating applications and binaries with evidence.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Inspect",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use this integration for the current development task."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

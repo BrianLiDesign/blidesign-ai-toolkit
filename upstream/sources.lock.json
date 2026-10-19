@@ -3,16 +3,18 @@
   "sources": {
     "mattpocock-skills": {
       "repository": "https://github.com/mattpocock/skills.git",
-      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "commit": "5beb35b040e3de97e54fa9e386d7e42d15c295c2",
       "license": "MIT",
       "licensePath": "plugins/engineering-skills/LICENSES/mattpocock-skills-MIT.txt",
       "destination": "plugins/engineering-skills/skills",
-      "contentSha256": "6c518ecd1b9c536a0374700af1faa4795924eca3107106e47195a735c927d5f8",
+      "contentSha256": "2c7a730b6c89aac1f0d2cf788134d9be7a67b43c18c60f855927a5786bafd845",
       "updateStrategy": "flatten-skill-directories",
       "transformations": [
         "normalize UTF-8 vendored text line endings to LF before hashing",
-        "translate disable-model-invocation true to Codex explicit-only agents/openai.yaml policy"
-      ]
+        "translate disable-model-invocation true to Codex explicit-only agents/openai.yaml policy",
+        "append owned engineering guidance from upstream/mattpocock-overlays.json"
+      ],
+      "overlayPath": "upstream/mattpocock-overlays.json"
     }
   }
 }

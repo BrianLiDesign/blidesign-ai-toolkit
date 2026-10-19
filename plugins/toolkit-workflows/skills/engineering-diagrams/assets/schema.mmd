@@ -1,0 +1,11 @@
+erDiagram
+    accTitle: Proposed logical order model
+    accDescr: Each order belongs to exactly one customer; a customer can have no orders or many.
+    CUSTOMER ||--o{ ORDER : places
+    CUSTOMER {
+        string id PK
+    }
+    ORDER {
+        string id PK
+        string customer_id FK
+    }

@@ -1,12 +1,17 @@
 {
   "name": "engineering-skills",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "Pinned, portable engineering workflows for AI coding agents.",
   "author": {
     "name": "Brian Li"
   },
   "license": "MIT",
-  "keywords": ["engineering", "skills", "workflow", "tdd"],
+  "keywords": [
+    "engineering",
+    "skills",
+    "workflow",
+    "tdd"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Engineering Skills",
@@ -14,7 +19,10 @@
     "longDescription": "A pinned collection of Matt Pocock's composable engineering and productivity skills, packaged as portable Agent Skills.",
     "developerName": "Brian Li",
     "category": "Developer Tools",
-    "capabilities": ["Plan", "Write"],
+    "capabilities": [
+      "Plan",
+      "Write"
+    ],
     "defaultPrompt": [
       "Ask Matt which engineering workflow fits this task.",
       "Turn this idea into a buildable specification.",

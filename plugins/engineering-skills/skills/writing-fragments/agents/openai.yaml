@@ -1,6 +1,5 @@
 interface:
   display_name: "Writing Fragments"
-  short_description: "Explicitly invoke the Writing Fragments workflow"
-  default_prompt: "Use $writing-fragments to guide this task."
+  short_description: "Mine raw writing fragments"
 policy:
   allow_implicit_invocation: false

@@ -7,6 +7,7 @@ import argparse
 import codecs
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -14,7 +15,7 @@ import tempfile
 import uuid
 from pathlib import Path
 
-from provenance import digest_directory
+from provenance import apply_skill_overlays, digest_directory
 from sync_catalog import build_catalog
 
 
@@ -75,10 +76,16 @@ def flatten_skills(source_root: Path, stage: Path) -> int:
             )
             policy_path = copied / "agents" / "openai.yaml"
             if policy_path.exists():
-                raise RuntimeError(
-                    f"{skill_directory.name}: upstream now supplies agents/openai.yaml; "
-                    "review the explicit-only policy translation manually"
-                )
+                policy_text = policy_path.read_text(encoding="utf-8")
+                if not re.search(
+                    r"(?m)^policy:\s*\n  allow_implicit_invocation: false[ \t]*(?:\n|$)",
+                    policy_text,
+                ):
+                    raise RuntimeError(
+                        f"{skill_directory.name}: upstream agents/openai.yaml requires manual "
+                        "review of its explicit-only policy"
+                    )
+                continue
             policy_path.parent.mkdir(parents=True)
             display_name = skill_directory.name.replace("-", " ").title()
             policy_path.write_text(
@@ -173,6 +180,8 @@ def apply_update(source_name: str, source: dict[str, str], commit: str) -> int:
         backup = destination.parent / f".skills-backup-{uuid.uuid4().hex}"
         try:
             count = flatten_skills(checkout / "skills", stage)
+            if source.get("overlayPath"):
+                apply_skill_overlays(stage, ensure_repo_path(ROOT / source["overlayPath"]))
             destination.rename(backup)
             stage.rename(destination)
             shutil.copy2(checkout / "LICENSE", license_destination)

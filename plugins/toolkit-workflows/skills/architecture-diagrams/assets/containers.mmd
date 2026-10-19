@@ -1,0 +1,10 @@
+flowchart LR
+    accTitle: Proposed order system containers
+    accDescr: A customer submits orders to an API, which persists them in a database within the order system.
+    person["Customer (Person)<br/>Places orders"]
+    subgraph system["Order system - Proposed container view"]
+        api["Order API (Container)<br/>Validates orders<br/>HTTPS application"]
+        store[("Database (Container)<br/>Stores orders<br/>Relational database")]
+    end
+    person -->|"Submits orders<br/>HTTPS"| api
+    api -->|"Reads and writes orders<br/>SQL"| store

@@ -1,6 +1,5 @@
 interface:
   display_name: "To Spec"
-  short_description: "Explicitly invoke the To Spec workflow"
-  default_prompt: "Use $to-spec to guide this task."
+  short_description: "Turn a conversation into a spec"
 policy:
   allow_implicit_invocation: false

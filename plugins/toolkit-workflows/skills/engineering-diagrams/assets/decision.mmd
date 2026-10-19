@@ -1,0 +1,6 @@
+flowchart TD
+    accTitle: Proposed request decision
+    accDescr: Valid requests are saved; invalid requests return validation errors.
+    request["Receive request"] --> valid{"Request valid?"}
+    valid -->|Yes| save["Save order"]
+    valid -->|No| reject["Return validation errors"]

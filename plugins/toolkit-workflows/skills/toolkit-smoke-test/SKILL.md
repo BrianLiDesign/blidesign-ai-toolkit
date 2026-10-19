@@ -36,3 +36,9 @@ the actual published ref. Never report them as updated.
 Return a compact host matrix with expected and observed versions, file/discovery checks, MCP probe
 results, and reload or authentication steps still pending. Store detailed machine-specific evidence
 only in a user-local location when needed.
+
+For Claude Code and Cursor, use `scripts/sync_mcps.py` to stage versioned payloads and merge the
+profile's portable MCP definitions into user settings. Review `--dry-run`; use `--replace` for
+conflicting toolkit entries with automatic backups. Optional integrations need explicit `--plugin`
+selection. Keep existing Context7 CLI and browser coverage; avoid duplicate registrations. See
+`docs/mcp-integrations.md` for authentication, REA provider limits, and verification boundaries.

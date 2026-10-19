@@ -1,0 +1,13 @@
+digraph dependencies {
+  graph [rankdir=LR, label="Proposed module dependencies - arrow means imports", labelloc=t];
+  node [shape=box, fontname="Arial"];
+  edge [fontname="Arial"];
+  subgraph cluster_application {
+    label="Application";
+    api [label="Order API"];
+    service [label="Order service"];
+  }
+  storage [label="Storage adapter"];
+  api -> service [label="imports"];
+  service -> storage [label="imports"];
+}

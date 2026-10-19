@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "semantic-code",
+  "version": "0.1.0",
+  "description": "Pinned Serena MCP for symbol-aware code navigation and editing.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "repository": "https://github.com/BrianLiDesign/blidesign-ai-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ]
+}

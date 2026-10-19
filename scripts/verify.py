@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from sync_catalog import build_catalog
-from provenance import digest_directory
+from provenance import digest_directory, load_skill_overlays, overlay_suffix
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -129,6 +129,18 @@ def validate_portable_mcp(plugin_dir: Path, path: Path) -> set[str]:
                 raise VerificationError(
                     f"{plugin_dir.name}: {server_name} cannot override plugin path variables"
                 )
+        elif server_type == "http":
+            if set(server) != {"type", "url"}:
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} HTTP configuration must use host-managed authentication"
+                )
+            from urllib.parse import urlparse
+
+            url = urlparse(str(server.get("url", "")))
+            if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment:
+                raise VerificationError(
+                    f"{plugin_dir.name}: {server_name} requires a public HTTPS URL without credentials"
+                )
         else:
             raise VerificationError(
                 f"{plugin_dir.name}: {server_name} uses an unsupported transport"
@@ -187,7 +199,7 @@ def validate_plugin(plugin_dir: Path, expected_name: str) -> None:
         portable_servers = load_json(portable_mcp_path)["mcpServers"]
         for server_name, legacy_server in legacy_servers.items():
             portable_server = portable_servers[server_name]
-            for field in ("command", "args"):
+            for field in ("command", "args", "url", "env"):
                 if legacy_server.get(field) != portable_server.get(field):
                     raise VerificationError(
                         f"{expected_name}: {server_name} {field} differs between MCP configs"
@@ -245,6 +257,18 @@ def validate_source_provenance(root: Path, name: str, source: dict[str, Any]) ->
         raise VerificationError(f"{name}: contentSha256 must be a SHA-256 digest")
     if digest_directory(destination) != expected_digest:
         raise VerificationError(f"{name}: vendored content digest does not match")
+    if source.get("overlayPath"):
+        overlay_path = (root / source["overlayPath"]).resolve()
+        if not overlay_path.is_relative_to(root.resolve()) or not overlay_path.is_file():
+            raise VerificationError(f"{name}: overlay path must exist within the repository")
+        try:
+            overlays = load_skill_overlays(overlay_path)
+            for skill_name, text in overlays.items():
+                installed = (destination / skill_name / "SKILL.md").read_text(encoding="utf-8")
+                if not installed.endswith(overlay_suffix(text)):
+                    raise ValueError(f"{skill_name}: overlay differs from its declared source")
+        except (OSError, ValueError) as error:
+            raise VerificationError(f"{name}: {error}") from error
 
 
 def validate_provenance() -> None:

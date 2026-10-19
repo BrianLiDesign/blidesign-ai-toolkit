@@ -1,6 +1,5 @@
 interface:
   display_name: "Claude Handoff"
-  short_description: "Explicitly invoke the Claude Handoff workflow"
-  default_prompt: "Use $claude-handoff to guide this task."
+  short_description: "Hand off to a background agent"
 policy:
   allow_implicit_invocation: false

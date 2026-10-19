@@ -28,3 +28,16 @@ Report each requirement as passed, failed, blocked, or untested with its evidenc
 controlled tests, owned local services, and live deployments. Record commit, environment, time,
 reproduction command or action, expected result, observed result, and cleanup outcome. Attribute
 human contributions only when evidenced. Keep unavailable deployment logs or access steps explicit.
+
+For releases involving schema or data changes, check migration compatibility with the deployed and
+rollback versions. Verify backup/restore or rollback readiness through existing procedures; do not
+trigger production rollback merely to prove it exists. Exercise failure and recovery on owned test
+environments when within scope. Record any irreversible migration and the agreed recovery route.
+
+Inspect available deployment logs, error reports, latency, and resource signals for the tested
+release, using the application's existing telemetry. Compare relevant behavior with its baseline
+and state the observation window. A quiet error dashboard without representative traffic is weak
+evidence. Report missing instrumentation as unobserved coverage; adding a new telemetry service is
+a separate configuration change. Keep operational evidence tied to the deployment SHA and exclude
+credentials and user payloads. Preserve fixture cleanup and rollback-readiness outcomes in the
+acceptance report alongside public behavior and persistence results.

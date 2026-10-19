@@ -1,0 +1,28 @@
+{
+  "name": "error-monitoring",
+  "version": "0.1.0",
+  "description": "Optional official Sentry MCP for application errors and performance investigation.",
+  "author": {
+    "name": "Brian Li"
+  },
+  "license": "MIT",
+  "keywords": [
+    "developer-tools",
+    "mcp"
+  ],
+  "interface": {
+    "displayName": "Error Monitoring",
+    "shortDescription": "Optional official Sentry MCP for application errors and performance investigation.",
+    "longDescription": "Optional official Sentry MCP for application errors and performance investigation.",
+    "developerName": "Brian Li",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Inspect",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use this integration for the current development task."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

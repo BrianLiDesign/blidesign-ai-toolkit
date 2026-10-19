@@ -1,6 +1,5 @@
 interface:
   display_name: "Triage"
-  short_description: "Explicitly invoke the Triage workflow"
-  default_prompt: "Use $triage to guide this task."
+  short_description: "Move issues through triage roles"
 policy:
   allow_implicit_invocation: false

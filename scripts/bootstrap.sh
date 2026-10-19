@@ -55,9 +55,9 @@ source_path="${source_path:-$repository_root}"
 profile_path="$repository_root/profiles/$profile.json"
 
 python_command=""
-if command -v python3 >/dev/null 2>&1; then
+if command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; assert sys.version_info >= (3, 9)' >/dev/null 2>&1; then
   python_command="python3"
-elif command -v python >/dev/null 2>&1; then
+elif command -v python >/dev/null 2>&1 && python -c 'import sys; assert sys.version_info >= (3, 9)' >/dev/null 2>&1; then
   python_command="python"
 fi
 
@@ -74,7 +74,7 @@ while IFS= read -r plugin; do
   [[ -n "$plugin" ]] && plugins+=("$plugin")
 done < <("$python_command" -c 'import json,sys; print(*json.load(open(sys.argv[1], encoding="utf-8"))["plugins"], sep="\n")' "$profile_path" | tr -d '\r')
 external_plugins=()
-while IFS= read -r plugin; do
+while IFS= read -r plugin || [[ -n "$plugin" ]]; do
   [[ -n "$plugin" ]] && external_plugins+=("$plugin")
 done < <("$python_command" -c 'import json,sys; sys.stdout.write("\n".join(item["id"] for item in json.load(open(sys.argv[1], encoding="utf-8"))["externalPlugins"]))' "$profile_path" | tr -d '\r')
 
@@ -129,7 +129,8 @@ for plugin in "${plugins[@]}"; do
 done
 
 if [[ "$skip_external" == false ]]; then
-  for plugin in "${external_plugins[@]}"; do
+  # Bash 3.2 treats an empty array as unset under nounset.
+  for plugin in ${external_plugins[@]+"${external_plugins[@]}"}; do
     if ! run_codex plugin add "$plugin"; then
       echo "Optional external plugin unavailable: $plugin" >&2
     fi

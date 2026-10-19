@@ -1,6 +1,5 @@
 interface:
   display_name: "To Questionnaire"
-  short_description: "Explicitly invoke the To Questionnaire workflow"
-  default_prompt: "Use $to-questionnaire to guide this task."
+  short_description: "Front-load questions into a doc for someone to answer"
 policy:
   allow_implicit_invocation: false
