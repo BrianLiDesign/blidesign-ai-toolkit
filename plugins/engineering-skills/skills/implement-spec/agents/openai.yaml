@@ -1,6 +1,5 @@
 interface:
   display_name: "Implement Spec"
-  short_description: "Explicitly invoke the Implement Spec workflow"
-  default_prompt: "Use $implement-spec to guide this task."
+  short_description: "Implement the result of /to-spec and /to-tickets in code."
 policy:
   allow_implicit_invocation: false

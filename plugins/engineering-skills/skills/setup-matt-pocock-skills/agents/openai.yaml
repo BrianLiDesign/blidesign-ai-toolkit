@@ -1,6 +1,5 @@
 interface:
   display_name: "Setup Matt Pocock Skills"
-  short_description: "Explicitly invoke the Setup Matt Pocock Skills workflow"
-  default_prompt: "Use $setup-matt-pocock-skills to guide this task."
+  short_description: "Configure a repo for the skills"
 policy:
   allow_implicit_invocation: false

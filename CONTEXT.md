@@ -56,3 +56,9 @@ without execution and runs explicit manifests to produce commit-specific evidenc
 Owned guidance appended to a pinned upstream skill through a declared, reproducible transformation.
 `upstream/mattpocock-overlays.json` is authoritative for these additions; the upstream commit and
 license remain unchanged, and the lock digest covers the resulting packaged bytes.
+
+## Engineering visuals workflow
+
+A toolkit workflow for explaining software structure and behavior through editable engineering
+diagrams. It covers architecture, API interactions, data models, state transitions, dependencies,
+and comparisons of existing and proposed designs.

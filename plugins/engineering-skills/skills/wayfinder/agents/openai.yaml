@@ -1,6 +1,5 @@
 interface:
   display_name: "Wayfinder"
-  short_description: "Explicitly invoke the Wayfinder workflow"
-  default_prompt: "Use $wayfinder to guide this task."
+  short_description: "Map a large effort as decision tickets"
 policy:
   allow_implicit_invocation: false

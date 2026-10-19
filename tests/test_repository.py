@@ -43,7 +43,7 @@ class MarketplaceContractTests(unittest.TestCase):
         plugin = ROOT / "plugins" / "engineering-skills"
         skill_files = sorted((plugin / "skills").glob("*/SKILL.md"))
 
-        self.assertEqual(len(skill_files), 37)
+        self.assertEqual(len(skill_files), 38)
         self.assertTrue((plugin / "LICENSES" / "mattpocock-skills-MIT.txt").is_file())
 
         lock = json.loads((ROOT / "upstream" / "sources.lock.json").read_text("utf-8"))
@@ -214,6 +214,37 @@ class MarketplaceContractTests(unittest.TestCase):
                 b"---\nname: example\n---\n",
             )
 
+    def test_upstream_translation_preserves_matching_explicit_only_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = root / "source/example"
+            (skill / "agents").mkdir(parents=True)
+            (skill / "SKILL.md").write_text(
+                "---\nname: example\ndisable-model-invocation: true\n---\n",
+                encoding="utf-8",
+            )
+            metadata = ('interface:\n  display_name: "Upstream name"\n'
+                        'policy:\n  allow_implicit_invocation: false\n')
+            (skill / "agents/openai.yaml").write_text(metadata, encoding="utf-8")
+            self.assertEqual(flatten_skills(root / "source", root / "stage"), 1)
+            self.assertEqual((root / "stage/example/agents/openai.yaml").read_text(), metadata)
+            self.assertIn("disable-model-invocation: false",
+                          (root / "stage/example/SKILL.md").read_text())
+
+    def test_upstream_translation_rejects_conflicting_invocation_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = root / "source/example"
+            (skill / "agents").mkdir(parents=True)
+            (skill / "SKILL.md").write_text(
+                "---\nname: example\ndisable-model-invocation: true\n---\n",
+                encoding="utf-8",
+            )
+            (skill / "agents/openai.yaml").write_text(
+                "policy:\n  allow_implicit_invocation: true\n", encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "explicit-only"):
+                flatten_skills(root / "source", root / "stage")
+
     def test_provenance_validation_detects_content_and_license_failures(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -382,7 +413,7 @@ class MarketplaceContractTests(unittest.TestCase):
         self.assertEqual(status["marketplace"], "blidesign-ai-toolkit")
         self.assertEqual(status["pluginCount"], 9)
         self.assertEqual(status["profileCount"], 3)
-        self.assertEqual(status["vendoredSkillCount"], 37)
+        self.assertEqual(status["vendoredSkillCount"], 38)
 
     def test_development_sync_adds_workflows_and_preserves_unrelated_skills(self) -> None:
         from sync_skills import iter_skill_dirs, plugin_paths_for_profile, sync_skills
@@ -535,6 +566,24 @@ class MarketplaceContractTests(unittest.TestCase):
         ):
             self.assertIn(f"{plugin}@blidesign-ai-toolkit", completed.stdout)
         self.assertIn("Dry run complete", completed.stdout)
+
+    def test_bash_bootstrap_includes_every_optional_plugin(self) -> None:
+        shell = shutil.which("bash")
+        if shell is None and sys.platform == "win32":
+            candidate = Path(r"C:\Program Files\Git\bin\bash.exe")
+            shell = str(candidate) if candidate.is_file() else None
+        if shell is None:
+            self.skipTest("Bash is not installed")
+        for profile in ("minimal", "development", "full"):
+            with self.subTest(profile=profile):
+                completed = subprocess.run(
+                    [shell, str(ROOT / "scripts/bootstrap.sh"), "--profile", profile, "--dry-run"],
+                    cwd=ROOT, text=True, capture_output=True, check=False,
+                )
+                self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+                config = json.loads((ROOT / "profiles" / f"{profile}.json").read_text())
+                for plugin in config["externalPlugins"]:
+                    self.assertIn(plugin["id"], completed.stdout)
 
     def test_inventory_export_omits_mcp_environment_and_machine_paths(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

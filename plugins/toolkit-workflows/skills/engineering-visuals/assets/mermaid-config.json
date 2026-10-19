@@ -1,0 +1,10 @@
+{
+  "theme": "neutral",
+  "fontFamily": "Arial, sans-serif",
+  "themeVariables": {
+    "edgeLabelBackground": "#ffffff"
+  },
+  "securityLevel": "strict",
+  "htmlLabels": false,
+  "deterministicIds": true
+}

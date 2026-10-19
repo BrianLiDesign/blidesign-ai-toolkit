@@ -1,0 +1,8 @@
+stateDiagram-v2
+    accTitle: Proposed order lifecycle
+    accDescr: Orders start pending and either complete on payment or cancel on expiration.
+    [*] --> Pending
+    Pending --> Completed: Payment accepted
+    Pending --> Cancelled: Expiration reached
+    Completed --> [*]
+    Cancelled --> [*]

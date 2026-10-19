@@ -1,6 +1,5 @@
 interface:
   display_name: "Loop Me"
-  short_description: "Explicitly invoke the Loop Me workflow"
-  default_prompt: "Use $loop-me to guide this task."
+  short_description: "Spec the workflows you want to build"
 policy:
   allow_implicit_invocation: false

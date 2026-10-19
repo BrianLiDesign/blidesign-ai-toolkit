@@ -107,7 +107,8 @@ def redactor(extra_names):
 def git_state(root):
     def git(*args):
         try:
-            result = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True, timeout=5)
+            result = subprocess.run(["git", "-C", str(root), *args], capture_output=True,
+                                    text=True, encoding="utf-8", errors="surrogateescape", timeout=5)
             return result.stdout if result.returncode == 0 else None
         except (OSError, subprocess.TimeoutExpired):
             return None
@@ -119,13 +120,13 @@ def git_state(root):
         diff = git("diff", "--no-ext-diff", "--no-textconv", "--binary", "HEAD", "--", ".")
         untracked = git("ls-files", "--others", "--exclude-standard", "-z")
         if diff is not None and untracked is not None and state is not None:
-            hasher = hashlib.sha256((state + "\0" + diff).encode("utf-8"))
+            hasher = hashlib.sha256((state + "\0" + diff).encode("utf-8", errors="surrogateescape"))
             try:
                 for name in sorted(filter(None, untracked.split("\0"))):
                     path = root / name
-                    hasher.update(name.encode("utf-8"))
+                    hasher.update(name.encode("utf-8", errors="surrogateescape"))
                     if path.is_symlink():
-                        hasher.update(os.readlink(path).encode("utf-8"))
+                        hasher.update(os.readlink(path).encode("utf-8", errors="surrogateescape"))
                     else:
                         with path.open("rb") as stream:
                             while chunk := stream.read(65536):

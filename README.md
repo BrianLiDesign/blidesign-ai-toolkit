@@ -10,11 +10,12 @@ Owned plugins use the Agent Plugins root `plugin.json` as their portable identit
 
 ## Included plugins
 
-- **engineering-skills**: 37 pinned Matt Pocock engineering and productivity skills.
+- **engineering-skills**: 38 pinned Matt Pocock engineering and productivity skills.
 - **marketplace-maintainer**: a skill for auditing provenance, manifests, profiles, and releases.
 - **developer-mcps**: a dependency-free local MCP server that reports marketplace health.
 - **toolkit-workflows**: project verification and security checks, PR closeout, release acceptance,
-  current documentation lookup, and cross-host installation smoke tests.
+  research and recommendations, current documentation lookup, engineering visuals, and cross-host
+  installation smoke tests.
 - **browser-diagnostics**: opt-in Chrome DevTools MCP, pinned to version 1.11.0.
 - **semantic-code**: pinned Serena MCP for symbol navigation, references, and editing.
 - **reverse-engineering**: opt-in REA MCP for inspecting applications and binaries.
@@ -71,7 +72,7 @@ Start a new Codex task afterward so the new skills and MCP tools are loaded.
 
 ### Install after hosting in Git
 
-Push the repository to a Git host, then supply its source in a form accepted by Codex—such as
+Push the repository to a Git host, then supply its source in a form accepted by Codexâ€”such as
 `OWNER/blidesign-ai-toolkit`, an HTTPS Git URL, or an SSH Git URL:
 
 ```powershell
@@ -154,14 +155,24 @@ The upstream package runs through npm; its source is not vendored into this repo
 
 ### Toolkit workflows
 
-The development and full profiles sync 45 skills, including these six owned workflows:
+The development and full profiles include these owned workflows:
 
 - `pr-closeout`: review remediation, CI, metadata, authorized merge, and post-merge verification.
 - `release-acceptance`: public behavior checks, persistence read-back, evidence, and fixture cleanup.
 - `find-docs`: current documentation through the Context7 CLI, with source citations.
+- `research-and-recommend`: primary-source research, applicable standards, comparison of viable
+  approaches, and a recommendation with tradeoffs and an implementation outline.
 - `toolkit-smoke-test`: installed versions, skill discovery, MCP startup, and harmless tool calls.
 - `project-check`: reviewed project commands, bounded execution, and commit-specific JSON evidence.
 - `security-check`: scanner findings, dependency and secret checks, and changed trust boundaries.
+- `engineering-visuals`: routes each diagram to a specialist with standards and rendering checks.
+- `engineering-diagrams`: Mermaid flow, sequence, state, and entity-relationship diagrams.
+- `architecture-diagrams`: C4 views, system boundaries, and existing or proposed designs.
+- `dependency-graphs`: evidence-backed module, package, and build dependency graphs.
+- `editable-diagrams`: draw.io sources for manual layout and continued editing.
+
+For an unfamiliar implementation or open decision, ask: "Use research-and-recommend to investigate
+[question], compare viable approaches against [constraints], and recommend the best fit."
 
 Keep an existing personal `find-docs` installation in only one host-discovered location to avoid
 duplicate discovery. Back up personal customizations before replacing it with the packaged skill.
@@ -226,6 +237,27 @@ py scripts/export_inventory.py
 
 The ignored `inventory.local.json` contains names, versions, enablement, transport types, and auth
 status only. It excludes MCP environment maps, commands, local paths, and credential values.
+
+## Engineering visuals
+
+The `development` and `full` profiles include an engineering visual workflow through
+`toolkit-workflows`. Ask for a diagram directly, or use `engineering-visuals` to choose a specialist:
+
+| Skill | Use |
+| --- | --- |
+| [engineering-visuals](plugins/toolkit-workflows/skills/engineering-visuals/SKILL.md) | Route each visual to the appropriate specialist. |
+| [engineering-diagrams](plugins/toolkit-workflows/skills/engineering-diagrams/SKILL.md) | Mermaid flowcharts, sequences, states, and data models. |
+| [architecture-diagrams](plugins/toolkit-workflows/skills/architecture-diagrams/SKILL.md) | C4 views and architecture comparisons. |
+| [dependency-graphs](plugins/toolkit-workflows/skills/dependency-graphs/SKILL.md) | Evidence-backed module and package graphs. |
+| [editable-diagrams](plugins/toolkit-workflows/skills/editable-diagrams/SKILL.md) | Editable draw.io diagrams and manual layout. |
+
+Each specialist includes researched practices, dated primary-source references, examples, and
+domain checks. They share [delivery and validation standards](plugins/toolkit-workflows/skills/engineering-visuals/references/standards.md)
+and a [local rendering helper](plugins/toolkit-workflows/skills/engineering-visuals/references/rendering.md).
+Editable source is retained; rendering and visual inspection are reported separately. Renderers
+are optional external dependencies, installed separately with exact versions when needed. Skill
+sync copies the full skill set and does not install a browser, Node package, or diagram editor.
+Interactive simulations and UI wireframes are outside this workflow's first release.
 
 ## Update vendored skills
 

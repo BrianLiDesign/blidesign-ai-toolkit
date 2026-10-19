@@ -7,7 +7,7 @@ description: Diagnosis loop for hard bugs and performance regressions. Use when 
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
 
-When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
+When exploring the codebase, read `GLOSSARY.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 
 ## Redact
 
@@ -122,7 +122,7 @@ A correct seam is one where the test exercises the **real bug pattern** as it oc
 If a correct seam exists:
 
 1. Turn the minimised repro into a failing test at that seam.
-2. Watch it fail.
+2. Watch it fail. If you forced the red by mutating code or a fixture, `diff` against a pristine copy to prove the mutation landed before you trust it.
 3. Apply the fix.
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
@@ -147,4 +147,11 @@ Use isolated fixtures and redact credentials and user payloads before retention 
 After fixing the cause, retain a regression test and verify the original trigger no longer fails.
 Use project-check when available for command results; preserve missing reproduction, telemetry,
 and cleanup evidence as explicit limitations.
+
+## Toolkit engineering visuals
+
+When an engineering visual materially clarifies the work, use engineering-visuals when available.
+Read and follow its selected specialist before implementing each diagram; use its domain standards,
+primary-source references, editable deliverables, and rendering/inspection checks. Preserve the
+agreed task scope and distinguish existing behavior from proposed designs.
 <!-- blidesign-toolkit-overlay:end -->

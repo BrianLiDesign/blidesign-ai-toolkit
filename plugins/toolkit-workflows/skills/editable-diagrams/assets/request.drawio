@@ -1,0 +1,19 @@
+<mxfile>
+  <diagram id="request-page" name="Proposed request flow">
+    <mxGraphModel dx="800" dy="400" grid="1" gridSize="10" page="1" pageWidth="827" pageHeight="1169">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="client" value="Client: submits request" style="rounded=1;whiteSpace=wrap;html=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="180" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="api" value="API: validates request" style="rounded=1;whiteSpace=wrap;html=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="100" width="180" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="request" value="HTTPS request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;" edge="1" parent="1" source="client" target="api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

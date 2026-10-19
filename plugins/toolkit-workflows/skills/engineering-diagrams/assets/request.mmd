@@ -1,0 +1,14 @@
+sequenceDiagram
+    accTitle: Proposed order request
+    accDescr: The API validates a request, saves valid orders, and rejects invalid requests.
+    participant Client
+    participant API
+    participant Store
+    Client->>API: Submit order
+    alt Request valid
+        API->>Store: Save order
+        Store-->>API: Saved identifier
+        API-->>Client: Created with identifier
+    else Request invalid
+        API-->>Client: Validation errors
+    end

@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "toolkit-workflows",
-  "version": "0.3.0",
-  "description": "Close PRs, verify releases, fetch current docs, and smoke-test agent installations.",
+  "version": "0.4.0",
+  "description": "Research decisions, verify software, create engineering diagrams, and maintain agent workflows.",
   "author": {
     "name": "Brian Li"
   },

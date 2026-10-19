@@ -74,7 +74,7 @@ while IFS= read -r plugin; do
   [[ -n "$plugin" ]] && plugins+=("$plugin")
 done < <("$python_command" -c 'import json,sys; print(*json.load(open(sys.argv[1], encoding="utf-8"))["plugins"], sep="\n")' "$profile_path" | tr -d '\r')
 external_plugins=()
-while IFS= read -r plugin; do
+while IFS= read -r plugin || [[ -n "$plugin" ]]; do
   [[ -n "$plugin" ]] && external_plugins+=("$plugin")
 done < <("$python_command" -c 'import json,sys; sys.stdout.write("\n".join(item["id"] for item in json.load(open(sys.argv[1], encoding="utf-8"))["externalPlugins"]))' "$profile_path" | tr -d '\r')
 
