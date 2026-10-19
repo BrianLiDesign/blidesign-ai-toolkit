@@ -105,13 +105,14 @@ class ProjectCheckTests(unittest.TestCase):
     def test_secrets_are_redacted_in_saved_report_stdout_and_arguments(self):
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as output:
             root = Path(directory)
-            secret = "fixture-sensitive-value-0123456789"
-            self.manifest(root, [{"id": "secret", "category": "test", "argv": ["{python}", "-c", "import os,sys; print(os.environ['TOOLKIT_TEST_SECRET']); print(sys.argv[1],file=sys.stderr)", secret]}])
+            # Fabricated marker; no credential or account data enters this fixture.
+            synthetic_marker = "synthetic-test-value-0123456789"
+            self.manifest(root, [{"id": "redaction", "category": "test", "argv": ["{python}", "-c", "import os,sys; print(os.environ['TOOLKIT_TEST_SECRET']); print(sys.argv[1],file=sys.stderr)", synthetic_marker]}])
             target = Path(output) / "report.json"
-            result, report = self.invoke(root, "--run", "--report", str(target), env={**os.environ, "TOOLKIT_TEST_SECRET": secret})
+            result, report = self.invoke(root, "--run", "--report", str(target), env={**os.environ, "TOOLKIT_TEST_SECRET": synthetic_marker})
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertNotIn(secret, result.stdout)
-            self.assertNotIn(secret, target.read_text())
+            self.assertNotIn(synthetic_marker, result.stdout)
+            self.assertNotIn(synthetic_marker, target.read_text())
             self.assertIn("<REDACTED>", report["checks"][0]["stdout"])
 
     def test_output_is_bounded_and_runner_works_when_copied_outside_toolkit(self):
