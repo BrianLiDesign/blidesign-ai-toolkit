@@ -129,7 +129,8 @@ for plugin in "${plugins[@]}"; do
 done
 
 if [[ "$skip_external" == false ]]; then
-  for plugin in "${external_plugins[@]}"; do
+  # Bash 3.2 treats an empty array as unset under nounset.
+  for plugin in ${external_plugins[@]+"${external_plugins[@]}"}; do
     if ! run_codex plugin add "$plugin"; then
       echo "Optional external plugin unavailable: $plugin" >&2
     fi
