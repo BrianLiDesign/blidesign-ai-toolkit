@@ -14,7 +14,7 @@ import tempfile
 import uuid
 from pathlib import Path
 
-from provenance import digest_directory
+from provenance import apply_skill_overlays, digest_directory
 from sync_catalog import build_catalog
 
 
@@ -173,6 +173,8 @@ def apply_update(source_name: str, source: dict[str, str], commit: str) -> int:
         backup = destination.parent / f".skills-backup-{uuid.uuid4().hex}"
         try:
             count = flatten_skills(checkout / "skills", stage)
+            if source.get("overlayPath"):
+                apply_skill_overlays(stage, ensure_repo_path(ROOT / source["overlayPath"]))
             destination.rename(backup)
             stage.rename(destination)
             shutil.copy2(checkout / "LICENSE", license_destination)

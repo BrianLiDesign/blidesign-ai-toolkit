@@ -85,3 +85,14 @@ A change can pass one axis and fail the other:
 - Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
 
 Reporting them separately stops one axis from masking the other.
+
+<!-- blidesign-toolkit-overlay:start -->
+## Toolkit verification evidence
+
+For the Standards axis, inspect relevant security scanner findings and changed trust boundaries;
+use the security-check skill when available and appropriate. For the Spec axis, challenge whether
+test expectations come from requirements or repeat the implementation's assumptions. Distinguish
+local checks from deployed acceptance, and identify required checks that were skipped or unavailable.
+Use recorded project-check evidence when available; a successful scanner or coverage percentage
+alone does not establish security or behavioral correctness.
+<!-- blidesign-toolkit-overlay:end -->

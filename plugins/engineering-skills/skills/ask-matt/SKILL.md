@@ -88,3 +88,12 @@ Off the main flow entirely.
 ## Precondition
 
 **`/setup-matt-pocock-skills`**: run before your first engineering flow to configure the issue tracker, triage labels, and doc layout the other skills assume. Custom issue trackers also work.
+
+<!-- blidesign-toolkit-overlay:start -->
+## Toolkit verification routes
+
+For discovering or running the project's verification gate, use the project-check skill when
+available. For security-sensitive changes or a requested security assessment, use security-check.
+These supplement the main flow with executable evidence; the originating requirements still
+determine correctness. Deployment behavior and persistence belong to release-acceptance.
+<!-- blidesign-toolkit-overlay:end -->

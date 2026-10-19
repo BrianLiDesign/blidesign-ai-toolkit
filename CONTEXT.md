@@ -44,3 +44,15 @@ tokens, user-specific paths, agent caches, and generated runtime files.
 Copying profile-selected `SKILL.md` directories to a host-chosen destination with
 `scripts/sync_skills.py`. The host (Cursor, Claude Code, Codex, or another agent) is responsible for
 discovering skills from that path.
+
+## Verification manifest
+
+A project-owned `.project-check.json` mapping reviewed verification checks to argument arrays,
+categories, timeouts, and required coverage. The packaged project-check runner discovers candidates
+without execution and runs explicit manifests to produce commit-specific evidence outside source control.
+
+## Skill overlay
+
+Owned guidance appended to a pinned upstream skill through a declared, reproducible transformation.
+`upstream/mattpocock-overlays.json` is authoritative for these additions; the upstream commit and
+license remain unchanged, and the lock digest covers the resulting packaged bytes.

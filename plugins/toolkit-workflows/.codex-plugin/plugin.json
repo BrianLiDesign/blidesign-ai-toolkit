@@ -1,6 +1,6 @@
 {
   "name": "toolkit-workflows",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Close PRs, verify releases, fetch current docs, and smoke-test agent installations.",
   "author": {
     "name": "Brian Li"

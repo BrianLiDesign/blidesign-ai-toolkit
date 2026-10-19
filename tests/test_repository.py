@@ -394,8 +394,9 @@ class MarketplaceContractTests(unittest.TestCase):
             unrelated.write_text("host-owned", encoding="utf-8")
             skills = iter_skill_dirs(plugin_paths_for_profile("development"))
             sync_skills(target, skills, dry_run=False)
-            for name in ("pr-closeout", "release-acceptance", "find-docs", "toolkit-smoke-test"):
+            for name in ("pr-closeout", "release-acceptance", "find-docs", "toolkit-smoke-test", "project-check", "security-check"):
                 self.assertTrue((target / name / "SKILL.md").is_file(), name)
+            self.assertTrue((target / "project-check/scripts/project_check.py").is_file())
             self.assertEqual(unrelated.read_text("utf-8"), "host-owned")
             self.assertFalse((target / "browser-diagnostics").exists())
 

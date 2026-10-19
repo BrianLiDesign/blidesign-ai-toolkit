@@ -36,3 +36,14 @@ When the shape of that interface is itself in question (how deep the module is, 
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
+
+<!-- blidesign-toolkit-overlay:start -->
+## Toolkit test evidence
+
+Derive expected behavior from acceptance examples, public contracts, or independently stated
+invariants. For edge-heavy logic, use the project's property-based tools when they offer useful
+coverage. Apply targeted mutation testing when checking whether a critical assertion detects a
+regression; coverage percentage alone does not establish test effectiveness. Preserve existing
+authorization and agreed seams. Use the project-check skill when available to record the focused
+red/green result and the final project gate, including the tested commit and unrun checks.
+<!-- blidesign-toolkit-overlay:end -->

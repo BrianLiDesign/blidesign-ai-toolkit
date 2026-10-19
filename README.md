@@ -13,8 +13,8 @@ Owned plugins use the Agent Plugins root `plugin.json` as their portable identit
 - **engineering-skills**: 37 pinned Matt Pocock engineering and productivity skills.
 - **marketplace-maintainer**: a skill for auditing provenance, manifests, profiles, and releases.
 - **developer-mcps**: a dependency-free local MCP server that reports marketplace health.
-- **toolkit-workflows**: PR closeout, release acceptance, current documentation lookup, and
-  cross-host installation smoke tests.
+- **toolkit-workflows**: project verification and security checks, PR closeout, release acceptance,
+  current documentation lookup, and cross-host installation smoke tests.
 - **browser-diagnostics**: opt-in Chrome DevTools MCP, pinned to version 1.11.0.
 - **semantic-code**: pinned Serena MCP for symbol navigation, references, and editing.
 - **reverse-engineering**: opt-in REA MCP for inspecting applications and binaries.
@@ -154,16 +154,46 @@ The upstream package runs through npm; its source is not vendored into this repo
 
 ### Toolkit workflows
 
-The development and full profiles sync 43 skills, including these four owned workflows:
+The development and full profiles sync 45 skills, including these six owned workflows:
 
 - `pr-closeout`: review remediation, CI, metadata, authorized merge, and post-merge verification.
 - `release-acceptance`: public behavior checks, persistence read-back, evidence, and fixture cleanup.
 - `find-docs`: current documentation through the Context7 CLI, with source citations.
 - `toolkit-smoke-test`: installed versions, skill discovery, MCP startup, and harmless tool calls.
+- `project-check`: reviewed project commands, bounded execution, and commit-specific JSON evidence.
+- `security-check`: scanner findings, dependency and secret checks, and changed trust boundaries.
 
 Keep an existing personal `find-docs` installation in only one host-discovered location to avoid
 duplicate discovery. Back up personal customizations before replacing it with the packaged skill.
-The new workflows are maintained separately from the unchanged pinned Matt Pocock collection.
+The new workflows are maintained separately from the pinned Matt Pocock collection. Small owned
+additions to its router, TDD, review, and debugging guidance are declared in
+`upstream/mattpocock-overlays.json` and reapplied by the updater without changing the upstream pin.
+
+### Project verification
+
+The runner is self-contained inside the `project-check` skill, so it works after syncing to any
+harness. Discovery reads package scripts and lists documentation/CI sources without executing them:
+
+```text
+python plugins/toolkit-workflows/skills/project-check/scripts/project_check.py --root . --discover
+```
+
+Review commands before adding them to a project's `.project-check.json`. This repository's manifest
+uses its existing verifier and unit tests. Run it and save evidence outside the checkout:
+
+```text
+python plugins/toolkit-workflows/skills/project-check/scripts/project_check.py --root . --run --report ../toolkit-project-check.json
+```
+
+The JSON includes commit/dirty state, source fingerprints, command results, durations, bounded
+redacted output, and missing checks. Focused `--check ID` runs can be partial. Discovery is not a
+verification pass. Commands run with your permissions; the runner is not a sandbox. See the
+[manifest and evidence reference](plugins/toolkit-workflows/skills/project-check/references/manifest.md).
+
+Security CI separately runs CodeQL for Python, JavaScript and Actions, dependency review on PRs,
+and a history secret scan. Scanner completion does not establish application security; inspect
+findings and inventory coverage. Remote MCP package-runner references need separate dependency
+review. CI preserves verification evidence for seven days; local reports remain outside Git.
 
 ## Verify
 

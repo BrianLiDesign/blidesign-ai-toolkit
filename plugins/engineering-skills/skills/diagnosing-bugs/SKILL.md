@@ -136,3 +136,15 @@ Required before declaring done:
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns
+
+<!-- blidesign-toolkit-overlay:start -->
+## Toolkit execution evidence
+
+For each hypothesis, record the reproduction command, tested commit and dirty state, expected and
+observed behavior, and the artifact that supports or rejects it. Capture the relevant debugger
+state, browser trace, console/network failure, or structured log rather than unrelated dumps.
+Use isolated fixtures and redact credentials and user payloads before retention or sharing.
+After fixing the cause, retain a regression test and verify the original trigger no longer fails.
+Use project-check when available for command results; preserve missing reproduction, telemetry,
+and cleanup evidence as explicit limitations.
+<!-- blidesign-toolkit-overlay:end -->
