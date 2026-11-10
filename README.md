@@ -157,6 +157,8 @@ The upstream package runs through npm; its source is not vendored into this repo
 
 The development and full profiles include these owned workflows:
 
+- `orchestrate`: bounded native subagents for research, review, and isolated implementation,
+  with structured handoffs and verified integration.
 - `pr-closeout`: review remediation, CI, metadata, authorized merge, and post-merge verification.
 - `release-acceptance`: public behavior checks, persistence read-back, evidence, and fixture cleanup.
 - `find-docs`: current documentation through the Context7 CLI, with source citations.
@@ -173,6 +175,14 @@ The development and full profiles include these owned workflows:
 
 For an unfamiliar implementation or open decision, ask: "Use research-and-recommend to investigate
 [question], compare viable approaches against [constraints], and recommend the best fit."
+
+For independent workstreams, ask: "Use orchestrate to implement these tasks with two workers in
+separate worktrees, integrate their results one at a time, and verify the combined result." Small
+or tightly dependent tasks stay in the main agent. The workflow uses native Codex, Claude Code, or
+Cursor subagents when available and reports sequential fallback otherwise. Skill sync installs
+instructions; it does not register custom agents, change host settings, or start a scheduler. See
+[host setup](plugins/toolkit-workflows/skills/orchestrate/references/hosts.md) and
+[acceptance scenarios](plugins/toolkit-workflows/skills/orchestrate/references/acceptance.md).
 
 Keep an existing personal `find-docs` installation in only one host-discovered location to avoid
 duplicate discovery. Back up personal customizations before replacing it with the packaged skill.

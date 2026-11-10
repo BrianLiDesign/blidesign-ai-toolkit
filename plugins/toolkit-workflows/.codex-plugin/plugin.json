@@ -1,6 +1,6 @@
 {
   "name": "toolkit-workflows",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Research decisions, verify software, create engineering diagrams, and maintain agent workflows.",
   "author": {
     "name": "Brian Li"

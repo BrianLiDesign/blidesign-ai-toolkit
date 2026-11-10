@@ -425,9 +425,14 @@ class MarketplaceContractTests(unittest.TestCase):
             unrelated.write_text("host-owned", encoding="utf-8")
             skills = iter_skill_dirs(plugin_paths_for_profile("development"))
             sync_skills(target, skills, dry_run=False)
-            for name in ("pr-closeout", "release-acceptance", "find-docs", "toolkit-smoke-test", "project-check", "security-check"):
+            for name in ("pr-closeout", "release-acceptance", "find-docs", "toolkit-smoke-test", "project-check", "security-check", "orchestrate"):
                 self.assertTrue((target / name / "SKILL.md").is_file(), name)
             self.assertTrue((target / "project-check/scripts/project_check.py").is_file())
+            orchestrate_source = ROOT / "plugins/toolkit-workflows/skills/orchestrate"
+            for source in orchestrate_source.rglob("*"):
+                if source.is_file():
+                    copied = target / "orchestrate" / source.relative_to(orchestrate_source)
+                    self.assertEqual(copied.read_bytes(), source.read_bytes())
             self.assertEqual(unrelated.read_text("utf-8"), "host-owned")
             self.assertFalse((target / "browser-diagnostics").exists())
 
